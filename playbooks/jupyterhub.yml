@@ -26,6 +26,9 @@
     - name: disable idle culling
       shell: "tljh-config set services.cull.enabled False"
 
+    - name: set jupyterlab as default
+      shell: "tljh-config set user_environment.default_app jupyterlab"
+
     - name: reload hub configuration
       shell: "tljh-config reload hub"
       ignore_errors: yes
