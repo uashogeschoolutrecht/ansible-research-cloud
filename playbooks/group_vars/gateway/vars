@@ -1,6 +1,0 @@
-gateway_domain: datascience.hu.nl
-
-gateway_tls_cert: "{{ vault_gateway_tls_cert }}"
-gateway_tls_key: "{{ vault_gateway_tls_key }}"
-
-amplify_api_key: "{{ vault_amplify_api_key }}"
