@@ -4,16 +4,6 @@
     name: gnupg
     update_cache: yes    
 
-- name: set hostname
-  hostname:
-    name: "{{ project_name }}"
-
-- name: update hosts file
-  lineinfile:
-    dest: /etc/hosts
-    regexp: '^127\.0\.1\.1'
-    line: "127.0.1.1 {{ project_name }}"
-
 - name: set login banner
   copy:
     src: issue

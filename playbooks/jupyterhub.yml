@@ -12,42 +12,16 @@
         url: "{{ tljh_bootstrap_script }}"
         dest: /home/ansible
       register: bootstrap_download
-  
-    - name: run JupyterHub bootstrap script
-      shell: "python3 {{ bootstrap_download.dest }} \
-                --admin {{ admin_username }}"
-          
+            
     - name: create exchange directory for nbgrader
       file:
         path: /srv/nbgrader/exchange
         state: directory
         group: jupyterhub-users
         mode: '0777'
-
-    - name: download pip requirements file
-      get_url:
-        url: "{{ github_root_url }}/{{ project_name }}/master/requirements.txt"
-        dest: /home/ansible
-      register: pip_download
-      ignore_errors: yes
-  
-    - name: install pip requirements
-      pip:
-        requirements: /home/ansible/requirements.txt
-        executable: /opt/tljh/user/bin/pip
-      when: pip_download is succeeded
-
-    - name: configure authentication
-      shell: "tljh-config set auth.type nativeauthenticator.NativeAuthenticator"
-        
-    - name: set user limits
-      shell: "tljh-config set limits.memory {{ user_memory_limit }}"
-
+          
     - name: disable idle culling
       shell: "tljh-config set services.cull.enabled False"
-
-    - name: set base url
-      shell: "tljh-config set base_url /jupyter/{{ project_name }}/"
 
     - name: reload hub configuration
       shell: "tljh-config reload hub"
