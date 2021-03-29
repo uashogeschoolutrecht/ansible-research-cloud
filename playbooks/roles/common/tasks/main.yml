@@ -19,19 +19,3 @@
     owner: root
     group: root
     mode: 0644
-
-- name: set authorized ssh keys
-  template:
-    src: authorized_keys.j2
-    dest: /home/ansible/.ssh/authorized_keys
-    owner: ansible
-    group: ansible
-    mode: '0644'
-
-- name: set default DNS config
-  template:
-    src: resolv.conf.j2
-    dest: /etc/resolv.conf
-    owner: root
-    group: root
-    mode: '0644'
