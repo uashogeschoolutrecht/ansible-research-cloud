@@ -7,14 +7,8 @@ server {
   listen 80;
   client_max_body_size 0;
 
-  rewrite ^/rstudio/{{ project_name }}$ $scheme://$http_host/rstudio/{{ project_name }}/ permanent;
-
-  location /rstudio/{{ project_name }}/ {
-    
-    rewrite ^/rstudio/{{ project_name }}/(.*)$ /$1 break;
-    
+  location / {    
     proxy_pass http://localhost:8787;
-    proxy_redirect http://localhost:8787/ https://$http_host/rstudio/{{ project_name }}/;
     
     proxy_http_version 1.1;
     proxy_set_header Upgrade $http_upgrade;

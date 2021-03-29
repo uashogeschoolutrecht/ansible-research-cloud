@@ -3,7 +3,6 @@
   gather_facts: no
   roles:
     - workspace
-    - nginx
     - web-server
     - python3.7-base
     - python3.7-ds
@@ -95,17 +94,6 @@
         dest: /etc/rstudio/vscode.conf
       when: rstudio_pro is defined and rstudio_pro
       notify: restart launcher
-
-    - name: create admin user
-      user:
-        name: "{{ admin_username }}"
-        group: sudo
-        state: present
-      register: create_admin
-
-    - name: set admin default password
-      shell: 'echo "{{ admin_username }}:{{ admin_username }}" | chpasswd'
-      when: create_admin is changed
         
     - name: copy nginx config
       template:
