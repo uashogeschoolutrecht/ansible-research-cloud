@@ -3,7 +3,6 @@
   gather_facts: no
   roles:
     - workspace
-    - web-server
     - python3.7-base
     - python3.7-ds
   vars:

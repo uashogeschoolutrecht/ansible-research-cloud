@@ -4,7 +4,6 @@
   gather_facts: no
   roles:
     - workspace
-    - web-server
 
   tasks:
     - name: download jupyterHub bootstrap script
