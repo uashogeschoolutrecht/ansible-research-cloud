@@ -1,0 +1,50 @@
+- hosts: rstudio_connect
+  become: yes
+  gather_facts: no
+  roles:
+    - workspace
+    - nginx
+    - web-server
+    - python3.7-base
+  vars:
+    rstudio_connect_url: https://cdn.rstudio.com/connect/1.8.4/rstudio-connect_1.8.4.2-2~ubuntu18_amd64.deb
+  vars_files:
+    - ./group_vars/gateway/vars
+
+  tasks:
+    - name: update hosts file for sendmail
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '^127\.0\.1\.1'
+        line: "127.0.1.1 {{ project_name }} {{ project_name + '.' + gateway_domain }}"
+
+    - name: install rstudio connect
+      apt:
+        deb: "{{ rstudio_connect_url }}"
+        state: present
+    
+    - name: Install recommended dependencies
+      apt:
+        pkg:
+          - texlive-full
+          - sendmail
+
+    - name: copy rstudio connect config
+      template:
+        src: ../templates/rstudio-connect/rstudio-connect.gcfg.j2
+        dest: /etc/rstudio-connect/rstudio-connect.gcfg
+        owner: root
+        mode: 0600
+      notify: restart rstudio connect
+    
+    - name: copy nginx config
+      template:
+        src: ../templates/rstudio-connect/nginx.conf.j2
+        dest: /etc/nginx/conf.d/nginx.conf
+      notify: restart nginx
+
+  handlers:
+    - name: restart rstudio connect
+      service:
+        name: rstudio-connect
+        state: restarted

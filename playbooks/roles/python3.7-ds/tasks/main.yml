@@ -1,0 +1,33 @@
+---
+- name: Run base role
+  include_role:
+    name: python
+
+- name: install data science packages
+  pip:
+    name:
+      - altair
+      - cython
+      - dask
+      - gensim
+      - keras
+      - matplotlib
+      - nltk
+      - numpy
+      - pandas
+      - pillow
+      - pyarrow
+      - requests
+      - scipy
+      - scikit-image
+      - scikit-learn
+      - seaborn
+      - spacy
+      - sqlalchemy
+      - statsmodels
+      - tensorflow
+      - xgboost
+    executable: /opt/Python/{{ python_env_name }}/bin/pip
+
+- name: enable jupyter kernel
+  shell: "/opt/Python/{{ python_env_name }}/bin/python -m ipykernel install --name py{{ python_env_name }} --display-name 'Python {{ python_version }} (Data Science)'"

@@ -1,0 +1,17 @@
+[Server]
+Address = {{ 'https://' + gateway_domain + '/' + project_name }}
+
+SenderEmail = {{ project_name + '@' + gateway_domain }}
+EmailProvider= sendmail
+
+ServerName = HU-RSConnect
+SameSite = "Lax"
+
+[HTTP]
+NoWarning = true
+Listen= localhost:3939
+ForceSecure = true
+
+[Python]
+Enabled = true
+Executable = /opt/Python/{{ python_env_name }}/bin/python

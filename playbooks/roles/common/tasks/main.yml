@@ -1,0 +1,47 @@
+---
+- name: install gpg
+  apt:
+    name: gnupg
+    update_cache: yes    
+
+- name: set hostname
+  hostname:
+    name: "{{ project_name }}"
+
+- name: update hosts file
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ project_name }}"
+
+- name: set login banner
+  copy:
+    src: issue
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: 0644
+
+- name: set welcome banner
+  copy:
+    src: motd
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: 0644
+
+- name: set authorized ssh keys
+  template:
+    src: authorized_keys.j2
+    dest: /home/ansible/.ssh/authorized_keys
+    owner: ansible
+    group: ansible
+    mode: '0644'
+
+- name: set default DNS config
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'

@@ -1,0 +1,43 @@
+- hosts: shiny
+  become: yes
+  gather_facts: no
+  roles:
+    - workspace
+    - nginx
+  vars:
+    shiny_server_version: shiny-server-1.5.14.948-amd64
+
+  tasks:  
+  - name: install shiny package
+    shell: R -e "install.packages('shiny', repos='https://cran.rstudio.com/', quite = TRUE)"
+
+  - name: download shiny-server package
+    get_url:
+      url: "https://download3.rstudio.org/ubuntu-14.04/x86_64/{{ shiny_server_version }}.deb"
+      dest: /home/ansible
+    register: shiny_server_package
+
+  - name: install shine-server
+    apt:
+      deb: "{{ shiny_server_package.dest }}"
+
+  - name: copy shiny-server config
+    copy:
+      src: ../files/shiny/shiny_server.conf
+      dest: /etc/shiny-server/shiny-server.conf
+
+  - name: restart shiny-server
+    service:
+      name: shiny-server
+      state: restarted
+
+  - name: copy nginx config
+    template:
+      src: ../templates/shiny/shiny_nginx.j2
+      dest: /etc/nginx/conf.d/shiny.conf
+    notify: restart nginx
+
+  - name: allow incoming traffic on port 8080
+    ufw:
+      rule: allow
+      port: '8080'

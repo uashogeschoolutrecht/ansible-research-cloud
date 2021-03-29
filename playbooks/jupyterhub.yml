@@ -1,0 +1,62 @@
+- hosts: jupyterhub
+  become: yes
+  gather_facts: no
+  roles:
+    - workspace
+    - web-server
+
+  tasks:
+    - name: download jupyterHub bootstrap script
+      get_url:
+        url: "{{ tljh_bootstrap_script }}"
+        dest: /home/ansible
+      register: bootstrap_download
+  
+    - name: run JupyterHub bootstrap script
+      shell: "python3 {{ bootstrap_download.dest }} \
+                --admin {{ admin_username }}"
+          
+    - name: create exchange directory for nbgrader
+      file:
+        path: /srv/nbgrader/exchange
+        state: directory
+        group: jupyterhub-users
+        mode: '0777'
+
+    - name: download pip requirements file
+      get_url:
+        url: "{{ github_root_url }}/{{ project_name }}/master/requirements.txt"
+        dest: /home/ansible
+      register: pip_download
+      ignore_errors: yes
+  
+    - name: install pip requirements
+      pip:
+        requirements: /home/ansible/requirements.txt
+        executable: /opt/tljh/user/bin/pip
+      when: pip_download is succeeded
+
+    - name: configure authentication
+      shell: "tljh-config set auth.type nativeauthenticator.NativeAuthenticator"
+        
+    - name: set user limits
+      shell: "tljh-config set limits.memory {{ user_memory_limit }}"
+
+    - name: disable idle culling
+      shell: "tljh-config set services.cull.enabled False"
+
+    - name: set base url
+      shell: "tljh-config set base_url /jupyter/{{ project_name }}/"
+
+    - name: reload hub configuration
+      shell: "tljh-config reload hub"
+      ignore_errors: yes
+
+    - name: install r kernel
+      shell: "/opt/tljh/user/bin/conda install --yes --quiet --channel r r-essentials"
+
+    - name: install nbgrader
+      shell: "/opt/tljh/user/bin/conda install --yes --quiet --channel conda-forge nbgrader \
+              && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix create_assignment/main \
+              && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix formgrader/main --section=tree \
+              && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix course_list/main --section=tree"

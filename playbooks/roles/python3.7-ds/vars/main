@@ -1,0 +1,2 @@
+python_version: 3.7.10
+python_env_name: "{{ python_version }}-ds"

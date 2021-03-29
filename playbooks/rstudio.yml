@@ -1,0 +1,124 @@
+- hosts: rstudio
+  become: yes
+  gather_facts: no
+  roles:
+    - workspace
+    - nginx
+    - web-server
+    - python3.7-base
+    - python3.7-ds
+  vars:
+    bspm_version: bspm_0.3.7
+    rstudio_version: rstudio-server-1.3.1093-amd64
+    rstudio_pro_version: rstudio-server-pro-1.4.1106-4-amd64
+    python_base_dir: 3.7.10-base
+
+  tasks:
+    - name: create systemd config directory
+      file:
+        path: /etc/systemd/system.conf.d
+        state: directory
+        group: sudo
+        mode: '0700'
+
+    - name: set systemd default process limits
+      template:
+        src: ../templates/rstudio/limits.conf.j2
+        dest: /etc/systemd/system.conf.d/limits.conf
+
+    - name: install rstudio community edition
+      apt:
+        deb: "https://download2.rstudio.org/server/bionic/amd64/{{ rstudio_version }}.deb"
+        state: present
+      when: rstudio_pro is not defined or not rstudio_pro
+
+    - name: install rstudio pro edition
+      apt:
+        deb: "https://download2.rstudio.org/server/bionic/amd64/{{ rstudio_pro_version }}.deb"
+        state: present
+      when: rstudio_pro is defined and rstudio_pro
+  
+    - name: download bspm package manager
+      get_url:
+        url: "https://cloud.r-project.org/src/contrib/{{ bspm_version }}.tar.gz"
+        dest: /home/ansible
+      register: bspm_download
+    
+    - name: install bspm package manager
+      shell: "R CMD INSTALL {{ bspm_download.dest }}"
+      when: bspm_download is changed
+
+    - name: enable bspm system wide
+      lineinfile:
+        path: /etc/R/Rprofile.site
+        line: "suppressMessages(bspm::enable())"
+        create: yes
+
+    - name: copy rstudio community config
+      template:
+        src: ../templates/rstudio/rserver.conf.j2
+        dest: /etc/rstudio/rserver.conf
+      when: rstudio_pro is not defined or not rstudio_pro
+      notify: restart rstudio
+
+    - name: copy rstudio pro config
+      template:
+        src: ../templates/rstudio/rserver-pro.conf.j2
+        dest: /etc/rstudio/rserver.conf
+      when: rstudio_pro is defined and rstudio_pro
+      notify: restart rstudio
+
+    - name: copy launcher config
+      copy:
+        src: ../files/rstudio/launcher.conf
+        dest: /etc/rstudio/launcher.conf
+      when: rstudio_pro is defined and rstudio_pro
+      notify: restart launcher
+    
+    - name: copy launcher jupyter config
+      template:
+        src: ../templates/rstudio/jupyter.conf.j2
+        dest: /etc/rstudio/jupyter.conf
+      when: rstudio_pro is defined and rstudio_pro
+      notify: restart launcher
+
+    - name: install code-server
+      shell: 
+        cmd: rstudio-server install-vs-code /opt/code-server
+        creates: /opt/code-server/code-server
+      when: rstudio_pro is defined and rstudio_pro
+      notify: restart rstudio
+
+    - name: copy launcher code-server config
+      template:
+        src: ../templates/rstudio/vscode.conf.j2
+        dest: /etc/rstudio/vscode.conf
+      when: rstudio_pro is defined and rstudio_pro
+      notify: restart launcher
+
+    - name: create admin user
+      user:
+        name: "{{ admin_username }}"
+        group: sudo
+        state: present
+      register: create_admin
+
+    - name: set admin default password
+      shell: 'echo "{{ admin_username }}:{{ admin_username }}" | chpasswd'
+      when: create_admin is changed
+        
+    - name: copy nginx config
+      template:
+        src: ../templates/rstudio/nginx.conf.j2
+        dest: /etc/nginx/conf.d/rstudio.conf
+      notify: restart nginx
+  
+  handlers:
+    - name: restart rstudio
+      service:
+        name: rstudio-server
+        state: restarted
+    - name: restart launcher
+      service:
+        name: rstudio-launcher
+        state: restarted

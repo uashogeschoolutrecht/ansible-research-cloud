@@ -1,0 +1,2 @@
+user_memory_limit: 1G
+tljh_bootstrap_script: https://tljh.jupyter.org/bootstrap.py

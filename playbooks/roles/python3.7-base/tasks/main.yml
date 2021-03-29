@@ -1,0 +1,17 @@
+---
+- name: Run base role
+  include_role:
+    name: python
+
+- name: install jupyter r kernel
+  shell: /opt/Python/miniconda/bin/conda install -p /opt/Python/{{ python_env_name }} --yes --quiet --channel r r-essentials
+  when: rstudio_pro is defined and rstudio_pro
+
+- name: enable jupyter kernel
+  shell: "/opt/Python/{{ python_env_name }}/bin/python -m ipykernel install --name py{{ python_env_name }} --display-name 'Python {{ python_version }} (Base)'"
+
+- name: add python to system-wide PATH
+  lineinfile:
+    line: "PATH=/opt/Python/{{ python_env_name }}/bin:$PATH"
+    path: /etc/profile.d/python{{ python_env_name }}.sh
+    create: yes

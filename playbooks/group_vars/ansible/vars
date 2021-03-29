@@ -1,0 +1,1 @@
+ansible_private_key: "{{ vault_ansible_private_key }}"

@@ -1,0 +1,68 @@
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: no
+  become: yes
+  roles:
+    - common
+  vars:
+    project_name: ansible
+  vars_files:
+    - ./group_vars/ansible/vars
+    - ./group_vars/ansible/vault
+
+  tasks:    
+    - name: create ansible user ssh directory
+      file:
+        path: /home/ansible/.ssh/
+        state: directory
+        owner: ansible
+        group: ansible
+        mode: 0700
+  
+    - name: add ansible private key
+      copy:
+        content: "{{ ansible_private_key }}"
+        dest: /home/ansible/.ssh/id_ed25519
+        owner: ansible
+        group: ansible
+        mode: 0400
+    
+    - name: add ansible public key
+      copy:
+        content: "{{ ansible_public_key }}"
+        dest: /home/ansible/.ssh/id_ed25519.pub
+        owner: ansible
+        group: ansible
+        mode: 0400
+
+    - name: copy ansible authorized keys
+      copy:
+        src: ../files/ansible/ansible_authorized_keys
+        dest: /home/ansible/.ssh/authorized_keys
+
+    - name: create github user
+      user:
+        name: github
+        comment: GitHub actions remote user
+        state: present
+
+    - name: create github user ssh directory
+      file:
+        path: /home/github/.ssh/
+        state: directory
+        owner: github
+        group: github
+        mode: 0700
+
+    - name: copy github user authorized keys
+      copy:
+        src: ../files/ansible/github_authorized_keys
+        dest: /home/github/.ssh/authorized_keys
+
+    - name: create github actions staging directory
+      file:
+        path: /srv/github/
+        state: directory
+        group: sudo
+        mode: 0777
+

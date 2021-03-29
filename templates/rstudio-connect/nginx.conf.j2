@@ -1,0 +1,12 @@
+server {
+  listen 80;
+  client_max_body_size 0;
+  
+  location /{{ project_name }}/ {
+    rewrite ^/{{ project_name }}/(.*)$ /$1 break;
+    proxy_pass http://localhost:3939;
+    proxy_redirect off;
+    proxy_http_version 1.1;
+    proxy_buffering off;
+  }
+}

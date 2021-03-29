@@ -1,0 +1,98 @@
+- hosts: gateway
+  become: yes
+  gather_facts: no
+  roles:
+    - nginx
+    - web-server
+  vars:
+    gateway_tls_cert_path: /etc/ssl/certs/
+    gateway_tls_key_path: /etc/ssl/private/
+
+  tasks:     
+    - name: copy main config
+      copy:
+        src: ../files/gateway/nginx.conf
+        dest: /etc/nginx/nginx.conf
+        group: sudo
+        mode: 0644
+      notify: restart nginx
+
+    - name: copy proxy config
+      template:
+        src: ../templates/gateway/nginx_proxy.conf.j2
+        dest: /etc/nginx/conf.d/proxy.conf
+        group: sudo
+        mode: 0644
+      notify: restart nginx
+    
+    - name: copy ssl config
+      copy:
+        src: ../files/gateway/nginx_ssl.conf
+        dest: /etc/nginx/conf.d/ssl.conf
+        group: sudo
+        mode: 0644
+      notify: restart nginx
+
+    - name: copy compression config
+      copy:
+        src: ../files/gateway/nginx_compression.conf
+        dest: /etc/nginx/conf.d/compression.conf
+        group: sudo
+        mode: 0644
+      notify: restart nginx
+
+    - name: copy status config
+      copy:
+        src: ../files/gateway/nginx_status.conf
+        dest: /etc/nginx/conf.d/status.conf
+        group: sudo
+        mode: 0644
+      notify: restart nginx
+
+    - name: copy tls certificate
+      copy:
+        content: "{{ gateway_tls_cert }}"
+        dest: "{{ gateway_tls_cert_path + gateway_domain + '.crt' }}"
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart nginx
+
+    - name: copy tls private key
+      copy:
+        content: "{{ gateway_tls_key }}"
+        dest: "{{ gateway_tls_key_path + gateway_domain + '.key' }}"
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart nginx
+
+    - name: copy documentation site
+      copy:
+        src: /srv/github/docs-hpc
+        dest: /usr/share/nginx/html
+        group: sudo
+        mode: '0444'
+      ignore_errors: yes
+
+    - name: copy blog site
+      copy:
+        src: /srv/github/datascience-blog
+        dest: /usr/share/nginx/html
+        group: sudo
+        mode: '0444'
+      ignore_errors: yes
+
+    - name: install amplify-agent
+      apt:
+        name: nginx-amplify-agent
+        state: latest
+      notify: restart amplify-agent
+
+    - name: copy amplify config
+      template:
+        src: ../templates/gateway/amplify.conf.j2
+        dest: /etc/amplify-agent/agent.conf
+        group: sudo
+        mode: 0644
+      notify: restart amplify-agent

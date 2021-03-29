@@ -1,0 +1,9 @@
+---
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+- name: restart amplify-agent
+  service:
+    name: amplify-agent
+    state: restarted
