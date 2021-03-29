@@ -97,33 +97,3 @@
     dest: /srv/user/scripts
     group: sudo
     mode: '0555'
-
-- name: create datablock directory
-  file:
-    path: /mnt/datablock
-    state: directory
-    group: sudo
-    mode: '0777'
-
-- name: Create a xfs filesystem on /dev/vdb
-  filesystem:
-    fstype: xfs
-    dev: /dev/vdb
-  register: filesystem_created
-  ignore_errors: yes
-
-- name: mount data block
-  mount:
-    src: /dev/vdb
-    path: /mnt/datablock
-    fstype: xfs
-    state: mounted
-    opts: defaults,nofail
-  ignore_errors: yes
-  when: filesystem_created is succeeded
-
-- name: link shared data directory to user home directories
-  file:
-    src: /mnt/datablock
-    dest: /etc/skel/shared
-    state: link
