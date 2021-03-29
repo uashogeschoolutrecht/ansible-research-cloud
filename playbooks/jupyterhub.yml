@@ -12,7 +12,10 @@
         url: "{{ tljh_bootstrap_script }}"
         dest: /home/ansible
       register: bootstrap_download
-            
+  
+    - name: run JupyterHub bootstrap script
+      shell: "python3 {{ bootstrap_download.dest }}"
+
     - name: create exchange directory for nbgrader
       file:
         path: /srv/nbgrader/exchange
