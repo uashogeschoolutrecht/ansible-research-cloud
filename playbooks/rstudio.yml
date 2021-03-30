@@ -98,14 +98,7 @@
     - name: copy nginx config
       template:
         src: ../templates/rstudio/nginx.conf.j2
-        dest: /etc/nginx/sites-available/rstudio.conf
-      notify: restart nginx
-
-    - name: link nginx config to default
-      file:
-        path: /etc/nginx/sites-enabled/default
-        src: /etc/nginx/sites-available/rstudio.conf
-        state: link
+        dest: /etc/nginx/app-location-conf.d/rstudio.conf
       notify: restart nginx
 
   handlers:
