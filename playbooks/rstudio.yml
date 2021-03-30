@@ -110,3 +110,8 @@
       service:
         name: rstudio-launcher
         state: restarted
+    - name: restart nginx
+      service: 
+        name: nginx
+        state: restarted
+
