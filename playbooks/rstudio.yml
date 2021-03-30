@@ -100,7 +100,14 @@
         src: ../templates/rstudio/nginx.conf.j2
         dest: /etc/nginx/conf.d/rstudio.conf
       notify: restart nginx
-  
+
+    - name: link nginx config to default
+      file:
+        path: /etc/nginx/sites-enabled/default
+        src: /etc/nginx/conf.d/rstudio.conf
+        state: link
+      notify: restart nginx
+
   handlers:
     - name: restart rstudio
       service:
