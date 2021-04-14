@@ -1,0 +1,50 @@
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  gather_facts: no
+
+  vars_files:
+  - ./group_vars/django_app/vars
+
+  roles:
+    - workspace
+
+  tasks:
+    - name: Install base packages
+      apt:
+        state: latest
+        name:
+          - build-essential
+          - acl
+          - ntp
+          - htop
+          - git
+          - supervisor
+          - net-tools
+          - python3
+          - python3-pip
+          - python3-setuptools
+          - python3-venv
+          - python3-pkg-resources
+          - python3-dev
+
+    - name: Upgrade pip
+      pip: name=pip state=latest
+      
+    - name: Create a data directory if it does not exist
+      file:
+        path: /data
+        state: directory
+        group: www-data
+        mode: '0775'
+        recurse: yes
+    
+    - name: Install virtualenv
+      pip:
+        name: virtualenv
+        version: 15.1.0
+      tags: packages
+
+    - name: Create the virtualenv
+      command: virtualenv -p /usr/bin/python3 venv
+              creates=/home/ubuntu/{{ project_name }}/venv/bin/activate
