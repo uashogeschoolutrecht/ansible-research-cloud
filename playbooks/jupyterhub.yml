@@ -4,6 +4,7 @@
   gather_facts: no
   roles:
     - workspace
+    - python3.7-ds
 
   tasks:
     - name: download jupyterHub bootstrap script
@@ -14,13 +15,6 @@
   
     - name: run JupyterHub bootstrap script
       shell: "python3 {{ bootstrap_download.dest }}"
-
-    - name: create exchange directory for nbgrader
-      file:
-        path: /srv/nbgrader/exchange
-        state: directory
-        group: jupyterhub-users
-        mode: '0777'
           
     - name: disable idle culling
       shell: "tljh-config set services.cull.enabled False"
@@ -28,15 +22,37 @@
     - name: set jupyterlab as default
       shell: "tljh-config set user_environment.default_app jupyterlab"
 
-    - name: reload hub configuration
-      shell: "tljh-config reload hub"
-      ignore_errors: yes
+    - name: update conda
+      shell: source /opt/tljh/user/bin/activate && conda update --yes --quiet conda
+      args:
+        executable: /bin/bash
+
+    - name: install git plugin
+      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge jupyterlab-git
+      args:
+        executable: /bin/bash
 
     - name: install r kernel
-      shell: "/opt/tljh/user/bin/conda install --yes --quiet --channel r r-essentials"
+      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel r r-essentials
+      args:
+        executable: /bin/bash
 
-    - name: install nbgrader
-      shell: "/opt/tljh/user/bin/conda install --yes --quiet --channel conda-forge nbgrader \
-              && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix create_assignment/main \
+    - name: create exchange directory for nbgrader
+      file:
+        path: /srv/nbgrader/exchange
+        state: directory
+        group: jupyterhub-users
+        mode: '0777'
+
+    - name: install nbgrader plugin
+      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge nbgrader
+      args:
+        executable: /bin/bash
+
+    - name: disable nbgrader user permissions
+      shell: "/opt/tljh/user/bin/jupyter nbextension disable --sys-prefix create_assignment/main \
               && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix formgrader/main --section=tree \
               && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix course_list/main --section=tree"
+
+    - name: reload hub configuration
+      shell: "tljh-config reload hub"
