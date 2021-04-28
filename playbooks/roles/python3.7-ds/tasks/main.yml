@@ -1,5 +1,5 @@
 ---
-- name: Run base role
+- name: run base role
   include_role:
     name: python
 
@@ -29,5 +29,5 @@
       - xgboost
     executable: /opt/Python/{{ python_env_name }}/bin/pip
 
-- name: enable jupyter kernel
+- name: register jupyter kernel
   shell: "/opt/Python/{{ python_env_name }}/bin/python -m ipykernel install --name py{{ python_env_name }} --display-name 'Python {{ python_version }} (Data Science)'"
