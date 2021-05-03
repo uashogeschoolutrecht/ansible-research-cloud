@@ -6,8 +6,7 @@
     - workspace
     - python3.7-base
     - python3.7-ds
-
-  var_files:
+  vars_files:
     - ./group_vars/rstudio
   
   tasks:
