@@ -6,12 +6,10 @@
     - workspace
     - python3.7-base
     - python3.7-ds
-  vars:
-    bspm_version: bspm_0.3.7
-    rstudio_version: rstudio-server-1.3.1093-amd64
-    rstudio_pro_version: rstudio-server-pro-1.4.1106-4-amd64
-    python_base_dir: 3.7.10-base
 
+  var_files:
+    - ./group_vars/rstudio
+  
   tasks:
     - name: create systemd config directory
       file:
