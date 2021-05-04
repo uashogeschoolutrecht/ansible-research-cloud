@@ -17,10 +17,13 @@
       shell: "python3 {{ bootstrap_download.dest }}"
           
     - name: disable idle culling
-      shell: "tljh-config set services.cull.enabled False"
+      shell: tljh-config set services.cull.enabled False
 
     - name: set jupyterlab as default
-      shell: "tljh-config set user_environment.default_app jupyterlab"
+      shell: tljh-config set user_environment.default_app jupyterlab
+
+    - name: set pam authentication
+      shell: tljh-config set auth.type jupyterhub.auth.PAMAuthenticator
 
     - name: update conda
       shell: source /opt/tljh/user/bin/activate && conda update --yes --quiet conda
