@@ -93,7 +93,7 @@
       notify: restart launcher
         
     - name: copy nginx config
-      cope:
+      copy:
         src: ../files/rstudio/nginx.conf
         dest: /etc/nginx/app-location-conf.d/rstudio.conf
       notify: restart nginx

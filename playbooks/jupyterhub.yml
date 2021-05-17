@@ -61,7 +61,7 @@
       shell: "tljh-config set http.port 8080"
 
     - name: copy nginx config
-      cope:
+      copy:
         src: ../files/jupyter/nginx.conf
         dest: /etc/nginx/app-location-conf.d/jupyter.conf
       notify: restart nginx
