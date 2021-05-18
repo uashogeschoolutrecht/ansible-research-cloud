@@ -58,7 +58,7 @@
               && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix course_list/main --section=tree"
 
     - name: change default traefik port
-      shell: "tljh-config set http.port 8080"
+      shell: tljh-config set http.port 8080
 
     - name: copy nginx config
       copy:
