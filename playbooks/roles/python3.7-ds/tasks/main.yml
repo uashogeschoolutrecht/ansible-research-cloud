@@ -27,6 +27,7 @@
       - statsmodels
       - tensorflow
       - xgboost
+      - s3fs
     executable: /opt/Python/{{ python_env_name }}/bin/pip
 
 - name: register jupyter kernel
