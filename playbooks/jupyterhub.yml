@@ -40,11 +40,11 @@
       args:
         executable: /bin/bash
 
-    - name: allow jupyterhub users passwordless sudo
-      lineinfile:
-        path: /etc/sudoers.d/jupyterhub-admins
-        line: "%jupyterhub-users ALL = (ALL) NOPASSWD: ALL
-              Defaults exempt_group = jupyterhub-users"
+    # - name: allow jupyterhub users passwordless sudo
+    #   lineinfile:
+    #     path: /etc/sudoers.d/jupyterhub-admins
+    #     line: "%jupyterhub-users ALL = (ALL) NOPASSWD: ALL
+    #           Defaults exempt_group = jupyterhub-users"
 
     - name: create exchange directory for nbgrader
       file:
@@ -70,7 +70,7 @@
       copy:
         src: ../files/jupyter/nginx.conf
         dest: /etc/nginx/app-location-conf.d/jupyter.conf
-      # notify: restart nginx
+      notify: restart nginx
 
     # - name: reload hub configuration
     #   shell: tljh-config reload proxy && tljh-config reload hub
