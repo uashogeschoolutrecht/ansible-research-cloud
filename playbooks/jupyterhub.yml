@@ -40,12 +40,12 @@
       args:
         executable: /bin/bash
 
-    - name: allow jupyterhub users passwordless sudo
-      lineinfile:
-        path: /etc/sudoers.d/jupyterhub-admins
-        line: "%jupyterhub-users ALL = (ALL) NOPASSWD: ALL
-              Defaults exempt_group = jupyterhub-users"
-        mode: '0644'
+    # - name: allow jupyterhub users passwordless sudo
+    #   lineinfile:
+    #     path: /etc/sudoers.d/jupyterhub-admins
+    #     line: "%jupyterhub-users ALL = (ALL) NOPASSWD: ALL
+    #           Defaults exempt_group = jupyterhub-users"
+    #     mode: '0644'
 
     - name: create exchange directory for nbgrader
       file:
