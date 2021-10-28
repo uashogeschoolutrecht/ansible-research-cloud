@@ -36,7 +36,7 @@
         executable: /bin/bash
 
     - name: install r kernel
-      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel r r-essentials
+      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge r-essentials
       args:
         executable: /bin/bash
 
