@@ -25,6 +25,11 @@
     repo: "ppa:cran/poppler"
     state: present
 
+- name: add different repository for libgit2
+  apt_repository:
+    repo: "ppa:cran/libgit2"
+    state: present
+
 - name: install common dependencies
   apt:
     pkg:
