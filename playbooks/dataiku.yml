@@ -63,7 +63,7 @@
     - name: I am confused
       command: 'whoami'
       become: false
-      # become_method: su
+      become_method: su
       become_user: ubuntu
       register: myidentity
 
@@ -74,6 +74,7 @@
     - name: Install Dataiku DSS in
       become: false
       become_user: ubuntu
+      become_method: su
       shell: "/opt/dataiku/dataiku-dss-10.0.2/installer.sh -d {{ DATA_DIR }} -p 11000 -n -y -P /opt/Python/3.6-base/bin/python3.6"
       when: not dataiku_installed.stat.exists
     
