@@ -1,0 +1,83 @@
+- hosts: 127.0.0.1
+  connection: local
+  become: yes
+  gather_facts: no
+  roles:
+    - python3.6-base
+  vars_files:
+    - ./group_vars/dataiku
+  
+  tasks: 
+
+    - name: install default-jdk
+      apt:
+        name: openjdk-11-jdk
+        state: present
+
+    - name: create directory for Dataiku DSS
+      file:
+        path: /opt/dataiku
+        state: directory
+
+    - name: Download Dataiku DSS
+      get_url:
+        url: https://cdn.downloads.dataiku.com/public/dss/10.0.2/dataiku-dss-10.0.2.tar.gz
+        dest: /opt/dataiku
+
+    - name: Unpack the downloaded archive in /opt/dataiku
+      unarchive:
+        src: /opt/dataiku/dataiku-dss-10.0.2.tar.gz
+        dest: /opt/dataiku
+
+    - name: Check if there is an larger attached volume on RSC to store data on.
+      stat:
+        path: /data/volume_2
+      register: extra_volume_attached
+
+    - name: Define DATA_DIR based on attached storage
+      set_fact:
+          DATA_DIR: "/data/volume_2"
+      when: extra_volume_attached.stat.exists
+  
+    - name: create data directory for Dataiku DSS when there is no attached storage
+      file:
+        path: /data/dataiku
+        mode: '0777'
+        state: directory
+      when: not extra_volume_attached.stat.exists
+
+    - name: Define DATA_DIR based on attached storage
+      set_fact:
+          DATA_DIR: "/data/dataiku"
+      when: not extra_volume_attached.stat.exists
+  
+    - name: Debug output
+      debug:
+        msg: "{{ DATA_DIR }}"
+   
+    - name: Check if dataiku is installed
+      stat:
+        path: /data/dataiku/lib
+      register: dataiku_installed
+
+    - name: Install Dataiku DSS in
+      become: false
+      shell: "/opt/dataiku/dataiku-dss-10.0.2/installer.sh -d {{ DATA_DIR }} -p 11000 -n -y -P /opt/Python/3.6-base/bin/python3.6"
+      when: not dataiku_installed
+    
+    - name: start dataiku
+      become: false
+      shell: /data/dataiku/bin/dss start
+
+    - name: copy nginx config
+      copy:
+        src: ../files/dataiku/nginx.conf
+        dest: /etc/nginx/app-location-conf.d/rstudio.conf
+      notify: restart nginx
+  
+  handlers:
+    - name: restart nginx
+      service: 
+        name: nginx
+        state: restarted
+            
