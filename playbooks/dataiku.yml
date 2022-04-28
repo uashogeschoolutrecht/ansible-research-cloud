@@ -1,6 +1,5 @@
 - hosts: 127.0.0.1
   connection: local
-  become: yes
   gather_facts: no
   roles:
     - python3.6-base
@@ -62,7 +61,6 @@
 
     - name: I am confused
       command: 'whoami'
-      become: false
       become_method: su
       become_user: ubuntu
       register: myidentity
