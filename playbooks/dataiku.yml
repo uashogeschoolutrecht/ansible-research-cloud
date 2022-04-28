@@ -67,9 +67,9 @@
       become_user: ubuntu
       register: myidentity
 
-  - name: my secret identity
-    debug:
-      msg: '{{ myidentity.stdout }}'
+    - name: my secret identity
+      debug:
+        msg: '{{ myidentity.stdout }}'
 
     - name: Install Dataiku DSS in
       become: false
