@@ -3,31 +3,6 @@
   include_role:
     name: python
 
-- name: install jupyter base packages
-  pip:
-    name:
-      - jupyter
-      - jupyterlab
-      - rsp_jupyter
-      - rsconnect_jupyter
-    executable: /opt/Python/{{ python_env_name }}/bin/pip
-
-- name: install r kernel
-  shell: /opt/conda/miniconda/bin/conda install -p /opt/Python/{{ python_env_name }} --yes --quiet --channel r r-essentials
-  when: rstudio_pro is defined and rstudio_pro
-
-- name: install git plugin
-  shell: /opt/conda/miniconda/bin/conda install -p /opt/Python/{{ python_env_name }} --yes --quiet --channel conda-forge jupyterlab-git
-  when: rstudio_pro is defined and rstudio_pro
-
-- name: enable rstudio jupyter extensions
-  shell: "/opt/Python/{{ python_env_name }}/bin/jupyter-nbextension install --sys-prefix --py rsp_jupyter \
-  && /opt/Python/{{ python_env_name }}/bin/jupyter-nbextension enable --sys-prefix --py rsp_jupyter \
-  && /opt/Python/{{ python_env_name }}/bin/jupyter-nbextension install --sys-prefix --py rsconnect_jupyter \
-  && /opt/Python/{{ python_env_name }}/bin/jupyter-nbextension enable --sys-prefix --py rsconnect_jupyter \
-  && /opt/Python/{{ python_env_name }}/bin/jupyter-serverextension enable --sys-prefix --py rsconnect_jupyter"
-  when: rstudio_pro is defined and rstudio_pro
-
 - name: add python to system-wide PATH
   lineinfile:
     line: "PATH=/opt/Python/{{ python_env_name }}/bin:$PATH"

@@ -58,5 +58,8 @@
 
     - name: Install Dataiku DSS in
       become: false
-      shell: "/opt/dataiku/dataiku-dss-10.0.2/installer.sh -d {{ DATA_DIR }} -p 11000 -n -y -P python3.6"
+      shell: "/opt/dataiku/dataiku-dss-10.0.2/installer.sh -d {{ DATA_DIR }} -p 11000 -n -y -P /opt/Python/3.6-base/bin/python3.6"
+    
+    - name: start dataiku
+      shell: /data/dataiku/bin/dss start
             
