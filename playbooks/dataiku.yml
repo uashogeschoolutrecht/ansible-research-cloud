@@ -1,0 +1,16 @@
+- hosts: 145.38.206.203
+  become: yes
+  gather_facts: no
+  roles:
+    - python3.7-ds
+  vars_files:
+    - ./group_vars/dataiku
+  
+  tasks: 
+    - name: copy nginx config
+      copy:
+        src: ../files/rstudio/nginx.conf
+        dest: /etc/nginx/app-location-conf.d/rstudio.conf
+      notify: restart nginx
+
+
