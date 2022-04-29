@@ -10,3 +10,26 @@
     - name: my secret identity
       debug:
         msg: '{{ myidentity.stdout }}'
+
+    - name: I am less confused?
+      block:
+        - name: I am confused
+          command: 'whoami'
+          register: myidentitya
+
+        - name: my secret identitya
+          debug:
+          msg: '{{ myidentitya.stdout }}'
+      become_user: ubuntu
+
+    - name: I am still confused
+      block:
+        - name: I am confused
+          command: 'whoami'
+          register: myidentityb
+
+        - name: my secret identityb
+          debug:
+          msg: '{{ myidentityb.stdout }}'
+      become_user: ubuntu
+      become_method: su
