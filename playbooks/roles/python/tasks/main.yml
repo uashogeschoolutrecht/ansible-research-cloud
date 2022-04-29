@@ -1,5 +1,6 @@
 ---
 - name: create base directory
+  become: true
   file:
     path: /opt/Python
     state: directory
@@ -7,6 +8,7 @@
     mode: '0755'
 
 - name: install python
+  become: true
   shell:
     cmd: "/opt/conda/miniconda/bin/conda create --quiet --yes \
       --prefix /opt/Python/{{ python_env_name }} \
@@ -15,6 +17,7 @@
     creates: /opt/Python/{{ python_env_name }}
     
 - name: install common python packages
+  become: true
   pip:
     name:
       - ipykernel
