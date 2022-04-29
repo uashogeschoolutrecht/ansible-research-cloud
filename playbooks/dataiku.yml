@@ -7,7 +7,14 @@
     - ./group_vars/dataiku
   
   tasks: 
+    - name: I am confused b
+      command: 'whoami'
+      register: myidentity
 
+    - name: my secret identity
+      debug:
+        msg: '{{ myidentity.stdout }}'
+        
     - name: install default-jdk
       apt:
         name: openjdk-11-jdk
@@ -59,7 +66,7 @@
         path: /data/dataiku/lib
       register: dataiku_installed
 
-    - name: I am confused
+    - name: I am confused a
       command: 'whoami'
       register: myidentity
 

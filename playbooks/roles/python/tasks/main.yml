@@ -1,4 +1,12 @@
 ---
+- name: I am confused c
+  command: 'whoami'
+  register: myidentity
+
+- name: my secret identity
+  debug:
+    msg: '{{ myidentity.stdout }}'
+
 - name: create base directory
   become: true
   file:
