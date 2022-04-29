@@ -19,7 +19,7 @@
 
         - name: my secret identitya
           debug:
-          msg: '{{ myidentitya.stdout }}'
+            msg: '{{ myidentitya.stdout }}'
       become_user: ubuntu
 
     - name: I am still confused
@@ -30,6 +30,6 @@
 
         - name: my secret identityb
           debug:
-          msg: '{{ myidentityb.stdout }}'
+            msg: '{{ myidentityb.stdout }}'
       become_user: ubuntu
       become_method: su
