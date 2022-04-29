@@ -1,5 +1,6 @@
 ---
 - name: create base directory
+  become: yes
   file:
     path: /opt/conda
     state: directory
@@ -7,6 +8,7 @@
     mode: '0755'
 
 - name: download miniconda
+  become: yes
   get_url:
     url: https://repo.anaconda.com/miniconda/Miniconda3-py39_4.9.2-Linux-x86_64.sh
     dest: /opt/conda/miniconda.sh 
@@ -14,14 +16,17 @@
   register: download_conda
 
 - name: install miniconda
+  become: yes
   shell: bash /opt/conda/miniconda.sh -b -p /opt/conda/miniconda
   when: download_conda is changed
 
 - name: add conda to system-wide PATH
+  become: yes
   lineinfile:
     line: "PATH=/opt/conda/miniconda/bin:$PATH"
     path: /etc/profile.d/conda.sh
     create: yes
 
 - name: update conda
+  become: yes
   shell: /opt/conda/miniconda/bin/conda update -y -n base -c defaults conda
