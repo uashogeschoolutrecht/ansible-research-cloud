@@ -14,7 +14,7 @@
     - name: my secret identity
       debug:
         msg: '{{ myidentity.stdout }}'
-        
+
     - name: install default-jdk
       apt:
         name: openjdk-11-jdk
