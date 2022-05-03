@@ -1,40 +1,41 @@
 - hosts: 127.0.0.1
   connection: local
-  become_user: ubuntu
   gather_facts: no
-  roles:
-    - python3.6-base
   vars_files:
     - ./group_vars/dataiku
 
   tasks:
-    - name: I am confused b
-      command: 'whoami'
-      register: myidentity
+    - name: Increase system limits as required by DSS
+      become: true
+      pam_limits:
+        domain: "{{dss_service_user}}"
+        limit_item: "{{item}}"
+        limit_type: "-"
+        value: 65536
+      loop:
+        - nofile
+        - nproc
 
-    - name: my secret identity
-      debug:
-        msg: '{{ myidentity.stdout }}'
-
-    - name: install default-jdk
-      apt:
-        name: openjdk-11-jdk
+    - name: Update all packages
+      become: true
+      yum:
+        name: "*"
+        state: latest
+        update_cache: true
+   
+    - name: Create service user
+      become: true
+      user:
+        name: "{{dss_service_user}}"
         state: present
 
-    - name: create directory for Dataiku DSS
+    - name: Create public directories
+      become: true
       file:
-        path: /opt/dataiku
+        path: "{{dss_install_dir_location}}"
         state: directory
-
-    - name: Download Dataiku DSS
-      get_url:
-        url: https://cdn.downloads.dataiku.com/public/dss/10.0.2/dataiku-dss-10.0.2.tar.gz
-        dest: /opt/dataiku
-
-    - name: Unpack the downloaded archive in /opt/dataiku
-      unarchive:
-        src: /opt/dataiku/dataiku-dss-10.0.2.tar.gz
-        dest: /opt/dataiku
+        owner: "{{dss_service_user}}"
+        mode: "u=rwx,g=rx,o=rx"
 
     - name: Check if there is an larger attached volume on RSC to store data on.
       stat:
@@ -43,45 +44,72 @@
 
     - name: Define DATA_DIR based on attached storage
       set_fact:
-          DATA_DIR: "/data/volume_2"
+          dss_data_dirs_location: "/data/volume_2/dataiku"
       when: extra_volume_attached.stat.exists
-
-    - name: create data directory for Dataiku DSS when there is no attached storage
-      file:
-        path: /data/dataiku
-        mode: '0777'
-        state: directory
-      when: not extra_volume_attached.stat.exists
 
     - name: Define DATA_DIR based on attached storage
       set_fact:
-          DATA_DIR: "/data/dataiku"
+          dss_data_dirs_location: "/data/dataiku"
       when: not extra_volume_attached.stat.exists
 
-    - name: Debug output
-      debug:
-        msg: "{{ DATA_DIR }}"
+    - name: Create private directories
+      become: true
+      file:
+        path: "{{dss_data_dirs_location}}"
+        state: directory
+        owner: "{{dss_service_user}}"
+        mode: "u=rwx,g=,o="
 
-    - name: Check if dataiku is installed
-      stat:
-        path: /data/dataiku/lib
-      register: dataiku_installed
+    - name: Download DSS
+      become: true
+      become_user: "{{dss_service_user}}"
+      get_url:
+        url: "https://cdn.downloads.dataiku.com/public/studio/{{dss_version}}/dataiku-dss-{{dss_version}}.tar.gz"
+        dest: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}.tar.gz"
 
-    - name: I am confused a
-      command: 'whoami'
-      register: myidentity
+    - name: Unarchive DSS
+      become: true
+      become_user: "{{dss_service_user}}"
+      unarchive:
+        src: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}.tar.gz"
+        dest: "{{dss_install_dir_location}}"
+        creates: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}"
+        remote_src: yes
 
-    - name: my secret identity
-      debug:
-        msg: '{{ myidentity.stdout }}'
+    - name: Install DSS dependencies
+      become: true
+      shell:
+        cmd: |
+          {{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/install-deps.sh -yes 2>&1 > /tmp/dss-install-deps.log
+          touch {{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/DEPS-INSTALLED
+        creates: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/DEPS-INSTALLED"
 
-    - name: Install Dataiku DSS in
-      shell: "/opt/dataiku/dataiku-dss-10.0.2/installer.sh -d {{ DATA_DIR }} -p 11000 -n -y -P /opt/Python/3.6-base/bin/python3.6"
-      when: not dataiku_installed.stat.exists
+    - name: Run the Dataiku DSS installer
+      become: true
+      become_user: "{{dss_service_user}}"
+      command: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/installer.sh -d /home/{{dss_service_user}}/dataiku -p {{port}}"
+      args:
+        creates: "/home/{{dss_service_user}}/{{datadir}}/dss-version.json"
 
-    - name: start dataiku
-      become: false
-      shell: /data/dataiku/bin/dss start
+    - name: Install boot service
+      become: true
+      command: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/install-boot.sh -n {{datadir}} /home/dataiku/{{datadir}} dataiku"
+      args:
+        creates: "/etc/init.d/dataiku.{{datadir}}"
+
+    - name: Start the studio
+      become: true
+      service:
+        name: "dataiku.{{datadir}}"
+        state: started
+        enabled: true
+    
+
+    # - name: install default-jdk
+    #   apt:
+    #     name: openjdk-11-jdk
+    #     state: present
+
 
     - name: copy nginx config
       copy:
