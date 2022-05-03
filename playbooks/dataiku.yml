@@ -15,14 +15,11 @@
       loop:
         - nofile
         - nproc
-
-    - name: Update all packages
-      become: true
-      yum:
-        name: "*"
-        state: latest
-        update_cache: true
    
+    - name: Update apt-get repo and cache
+      become: true
+      apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+
     - name: Create service user
       become: true
       user:
@@ -83,6 +80,12 @@
           {{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/install-deps.sh -yes 2>&1 > /tmp/dss-install-deps.log
           touch {{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/DEPS-INSTALLED
         creates: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/DEPS-INSTALLED"
+    
+    - name: Check if dataiku is installed
+      become: true
+      stat:
+        path: /home/dataiku/dataiku
+      register: dataiku_installed
 
     - name: Run the Dataiku DSS installer
       become: true
@@ -90,20 +93,26 @@
       command: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/installer.sh -d /home/{{dss_service_user}}/dataiku -p {{port}}"
       args:
         creates: "/home/{{dss_service_user}}/{{datadir}}/dss-version.json"
+      when: not dataiku_installed.stat.exists
 
     - name: Install boot service
       become: true
-      command: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/install-boot.sh -n {{datadir}} /home/dataiku/{{datadir}} dataiku"
+      command: "{{dss_install_dir_location}}/dataiku-dss-{{dss_version}}/scripts/install/install-boot.sh -n {{datadir}} /home/dataiku/{{dss_service_user}} dataiku"
       args:
         creates: "/etc/init.d/dataiku.{{datadir}}"
 
-    - name: Start the studio
+    # - name: Start the studio
+    #   become: true
+    #   become_user: "{{dss_service_user}}"
+    #   service:
+    #     name: "dataiku.{{datadir}}"
+    #     state: started
+    #     enabled: true
+
+    - name: start dataiku
       become: true
-      service:
-        name: "dataiku.{{datadir}}"
-        state: started
-        enabled: true
-    
+      become_user: "{{dss_service_user}}"
+      shell: /home/dataiku/dataiku/bin/dss start 
 
     # - name: install default-jdk
     #   apt:
