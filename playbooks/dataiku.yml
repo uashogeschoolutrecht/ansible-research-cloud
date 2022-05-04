@@ -103,7 +103,6 @@
 
     - name: Start the studio
       become: true
-      become_user: "{{dss_service_user}}"
       service:
         name: "dataiku.{{datadir}}"
         state: started
