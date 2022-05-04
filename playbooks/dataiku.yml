@@ -101,24 +101,18 @@
       args:
         creates: "/etc/init.d/dataiku.{{datadir}}"
 
-    # - name: Start the studio
-    #   become: true
-    #   become_user: "{{dss_service_user}}"
-    #   service:
-    #     name: "dataiku.{{datadir}}"
-    #     state: started
-    #     enabled: true
-
-    - name: start dataiku
+    - name: Start the studio
       become: true
       become_user: "{{dss_service_user}}"
-      shell: /home/dataiku/dataiku/bin/dss start 
+      service:
+        name: "dataiku.{{datadir}}"
+        state: started
+        enabled: true
 
-    # - name: install default-jdk
-    #   apt:
-    #     name: openjdk-11-jdk
-    #     state: present
-
+    # - name: start dataiku
+    #   become: true
+    #   become_user: "{{dss_service_user}}"
+    #   shell: /home/dataiku/dataiku/bin/dss start 
 
     - name: copy nginx config
       copy:
