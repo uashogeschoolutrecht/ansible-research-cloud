@@ -26,7 +26,7 @@
       shell: tljh-config set auth.type jupyterhub.auth.PAMAuthenticator
 
     - name: update conda
-      shell: source /opt/tljh/user/bin/activate && conda update --yes --quiet conda
+      shell: source /opt/tljh/user/bin/activate && conda update --all --yes --quiet conda
       args:
         executable: /bin/bash
 
