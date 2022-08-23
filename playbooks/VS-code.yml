@@ -1,6 +1,6 @@
 - hosts: 127.0.0.1
   connection: local
-  become: yes
+  become_user: ubuntu
   gather_facts: no
   roles:
 
@@ -8,15 +8,37 @@
     - ./group_vars/dataiku
 
   tasks:
-    - name: Install vscode
-      apt:
-        deb:  https://github.com/coder/code-server/releases/download/v4.6.0/code-server_4.6.0_amd64.deb
 
-    - name: Start vscode with systemd
-      systemd:
-        name: code-server
-        enabled: yes
-        state: started
+    - name: create directory for code server
+      file:
+        path: ~/code-server
+        state: directory
+
+    - name: Download code server
+      get_url:
+        url: https://github.com/coder/code-server/releases/download/v4.6.0/code-server-4.6.0-linux-amd64.tar.gz
+        dest: ~/code-server
+
+    - name: Unpack the downloaded archive in /usr/lib/code-server
+      unarchive:
+        src:  ~/code-server/code-server-4.6.0-linux-amd64.tar.gz
+        dest: /usr/lib/code-server
+
+    - name: Create a symbolic link
+      ansible.builtin.file:
+        src: /usr/bin/code-server
+        dest: /usr/lib/code-server/code-server
+        state: link
+
+    - name: create directory for code server for user data
+      file:
+        path: /var/lib/code-server
+        state: directory
+
+      - name: copy systemd config
+      copy:
+        src: ../files/vscode/code-server.service
+        dest: /lib/systemd/system/code-server.service
 
     - name: copy nginx config
       copy:
