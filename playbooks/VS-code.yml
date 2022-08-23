@@ -8,18 +8,24 @@
     - ./group_vars/dataiku
 
   tasks:
-    - name: install code server
-      become: false
-      shell: curl -fsSL https://code-server.dev/install.sh | sh
+    - name: Install vscode
+      apt:
+        deb:  https://github.com/coder/code-server/releases/download/v4.6.0/code-server_4.6.0_amd64.deb
 
-  #   - name: copy nginx config
-  #     copy:
-  #       src: ../files/dataiku/nginx.conf
-  #       dest: /etc/nginx/app-location-conf.d/rstudio.conf
-  #     notify: restart nginx
+    - name: Start vscode with systemd
+      systemd:
+        name: code-server
+        enabled: yes
+        state: started
 
-  # handlers:
-  #   - name: restart nginx
-  #     service:
-  #       name: nginx
-  #       state: restarted
+    - name: copy nginx config
+      copy:
+        src: ../files/vscode/nginx.conf
+        dest: /etc/nginx/app-location-conf.d/vscode.conf
+      notify: restart nginx
+      
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
