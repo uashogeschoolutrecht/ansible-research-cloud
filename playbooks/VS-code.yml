@@ -3,7 +3,7 @@
   become_user: ubuntu
   gather_facts: no
   roles:
-    - python3.6-base
+
   vars_files:
     - ./group_vars/dataiku
 
