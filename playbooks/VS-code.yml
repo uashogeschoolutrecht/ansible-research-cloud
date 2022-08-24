@@ -35,7 +35,7 @@
         path: /var/lib/code-server
         state: directory
 
-      - name: copy systemd config
+    - name: copy systemd config
       copy:
         src: ../files/vscode/code-server.service
         dest: /lib/systemd/system/code-server.service
