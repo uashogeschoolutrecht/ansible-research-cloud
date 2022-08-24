@@ -13,6 +13,16 @@
       file:
         path: /home/ubuntu/code-server
         state: directory
+    
+    - name: create directory for unpacking code server
+      file:
+        path: /usr/lib/code-server
+        state: directory
+    
+    - name: create directory for user data
+      file:
+        path: /var/lib/code-server
+        state: directory
 
     - name: Download code server
       get_url:
@@ -29,11 +39,6 @@
         src: /usr/bin/code-server
         dest: /usr/lib/code-server/code-server
         state: link
-
-    - name: create directory for code server for user data
-      file:
-        path: /var/lib/code-server
-        state: directory
 
     - name: copy systemd config
       copy:
