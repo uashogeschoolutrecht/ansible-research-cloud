@@ -11,17 +11,17 @@
 
     - name: create directory for code server
       file:
-        path: ubuntu/code-server
+        path: /home/ubuntu/code-server
         state: directory
 
     - name: Download code server
       get_url:
         url: https://github.com/coder/code-server/releases/download/v4.6.0/code-server-4.6.0-linux-amd64.tar.gz
-        dest: ubuntu/code-server
+        dest: /home/ubuntu/code-server
 
     - name: Unpack the downloaded archive in /usr/lib/code-server
       unarchive:
-        src:  ubuntu/code-server/code-server-4.6.0-linux-amd64.tar.gz
+        src:  /home/ubuntu/code-server/code-server-4.6.0-linux-amd64.tar.gz
         dest: /usr/lib/code-server
 
     - name: Create a symbolic link
