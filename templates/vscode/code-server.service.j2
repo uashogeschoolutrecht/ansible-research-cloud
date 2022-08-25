@@ -10,7 +10,7 @@ Type=exec
    error exthost /bin/sh: 1: pdflatex: not found
    in the code-server log #}
 {# note: command-line flags override settings in config.yaml #}
-ExecStart=/usr/bin/code-server --auth {{ codeserver.auth }}
+ExecStart=/usr/bin/code-server --auth {{ auth }}
 Restart=always
 User=%i
 
