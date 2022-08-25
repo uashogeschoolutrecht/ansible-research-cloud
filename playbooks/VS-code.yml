@@ -102,7 +102,7 @@
 
     - name: "Start code-server with our command-line flags"
       ansible.builtin.template:
-        src: code-server.service.j2
+        src: vscode/code-server.service.j2
         dest: "/usr/lib/systemd/system/code-server@.service"
         owner: root
         group: root
