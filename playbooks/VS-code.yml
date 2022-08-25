@@ -1,7 +1,7 @@
 - hosts: 127.0.0.1
   connection: local
-  become_user: ubuntu
   gather_facts: no
+  become: yes
   roles:
 
   vars_files:
@@ -9,36 +9,59 @@
 
   tasks:
 
-    - name: create directory for code server
-      file:
-        path: /home/ubuntu/code-server
-        state: directory
+    # - name: create directory for code server
+    #   file:
+    #     path: /home/ubuntu/code-server
+    #     state: directory
     
-    - name: create directory for unpacking code server
-      file:
-        path: /usr/lib/code-server
-        state: directory
+    # - name: create directory for unpacking code server
+    #   become: yes
+    #   file:
+    #     path: /usr/lib/code-server
+    #     state: directory
     
-    - name: create directory for user data
-      file:
-        path: /var/lib/code-server
-        state: directory
+    # - name: create directory for user data
+    #   become: yes
+    #   file:
+    #     path: /var/lib/code-server
+    #     state: directory
 
-    - name: Download code server
-      get_url:
-        url: https://github.com/coder/code-server/releases/download/v4.6.0/code-server-4.6.0-linux-amd64.tar.gz
-        dest: /home/ubuntu/code-server
+    # - name: Download code server
+    #   get_url:
+    #     url: https://github.com/coder/code-server/releases/download/v4.6.0/code-server_4.6.0_amd64.deb
+    #     dest: /home/ubuntu/code-server
 
-    - name: Unpack the downloaded archive in /usr/lib/code-server
-      unarchive:
-        src:  /home/ubuntu/code-server/code-server-4.6.0-linux-amd64.tar.gz
-        dest: /usr/lib/code-server
+    # - name: Unpack the downloaded archive in /usr/lib/code-server
+    #   shell: tar -xzvf /home/ubuntu/code-server/code-server-4.6.0-linux-amd64.tar.gz
+
+    # - name: copy
+    #   shell: cp -r code-server-4.6.0-linux-amd64 /usr/lib/code-server
+
+    # - name: Create a symbolic link
+    #   shell: ln -s /usr/lib/code-server/code-server-4.6.0-linux-amd64 /usr/bin/code-server
+    - name: Create a symbolic link
+      shell: curl -fsSL https://code-server.dev/install.sh | sh
 
     - name: Create a symbolic link
-      ansible.builtin.file:
-        src: /usr/bin/code-server
-        dest: /usr/lib/code-server/code-server
-        state: link
+      shell: systemctl --user enable --now code-server
+
+
+
+    # - name: Unpack the downloaded archive in /usr/lib/code-server
+    #   unarchive:
+    #     src:  /home/ubuntu/code-server/code-server-4.6.0-linux-amd64.tar.gz
+    #     dest: /usr/lib/code-server
+
+    # - name: change name to code-server
+    #   copy:
+    #     src: /usr/lib/code-server/code-server-4.6.0-linux-amd64
+    #     dest: /usr/lib/code-server/code-server
+
+    # - name: Create a symbolic link
+    #   file:
+    #     src: /usr/bin/code-server
+    #     dest: /usr/lib/code-server/code-server-4.6.0-linux-amd64
+    #     state: link
 
     - name: copy systemd config
       copy:
