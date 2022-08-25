@@ -99,6 +99,15 @@
         src: ../files/vscode/nginx.conf
         dest: /etc/nginx/app-location-conf.d/vscode.conf
       notify: restart nginx
+
+    - name: "Start code-server with our command-line flags"
+      ansible.builtin.template:
+        src: code-server.service.j2
+        dest: "/usr/lib/systemd/system/code-server@.service"
+        owner: root
+        group: root
+        mode: u=rw,go=r
+      notify: restart code-server
       
   handlers:
     - name: restart nginx
