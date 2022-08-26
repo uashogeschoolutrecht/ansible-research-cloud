@@ -78,3 +78,4 @@
         state: restarted
         daemon_reload: yes
         name: "code-server@{{ ansible_env.USER }}.service"
+      ignore_errors: yes
