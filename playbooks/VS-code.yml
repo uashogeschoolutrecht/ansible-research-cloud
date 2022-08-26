@@ -37,9 +37,21 @@
 
     - name: copy nginx config
       copy:
-        src: ../files/vscode/nginx.conf
+        src: ../files/vscode/nginx
         dest: /etc/nginx/app-location-conf.d/vscode.conf
+
+    - name: copy nginx pam file
+      copy:
+        src: ../files/vscode/nginx.conf
+        dest: /etc/pam.d/nginx
       notify: restart nginx
+
+    - name: add nginx to shadow file
+      shell: |
+        groupadd shadow
+        usermod -a -G shadow www-data
+        chown root:shadow /etc/shadow
+        chmod g+r /etc/shadow
 
     - name: "Start code-server with our command-line flags"
       ansible.builtin.template:
