@@ -72,6 +72,7 @@
       service:
         name: nginx
         state: restarted
+      ignore_errors: yes
 
     - name: restart code-server
       ansible.builtin.systemd:
