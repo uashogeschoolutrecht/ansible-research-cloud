@@ -42,12 +42,12 @@
 
     - name: copy nginx config
       copy:
-        src: ../files/vscode/nginx
+        src: ../files/vscode/nginx.conf
         dest: /etc/nginx/app-location-conf.d/vscode.conf
 
     - name: copy nginx pam file
       copy:
-        src: ../files/vscode/nginx.conf
+        src: ../files/vscode/nginx
         dest: /etc/pam.d/nginx
 
     - name: add nginx to shadow file
