@@ -8,43 +8,6 @@
     - ./group_vars/vscode
 
   tasks:
-
-    # - name: create directory for code server
-    #   file:
-    #     path: /home/ubuntu/code-server
-    #     state: directory
-    
-    # - name: create directory for unpacking code server
-    #   become: yes
-    #   file:
-    #     path: /usr/lib/code-server
-    #     state: directory
-    
-    # - name: create directory for user data
-    #   become: yes
-    #   file:
-    #     path: /var/lib/code-server
-    #     state: directory
-
-    # - name: Download code server
-    #   get_url:
-    #     url: https://github.com/coder/code-server/releases/download/v4.6.0/code-server_4.6.0_amd64.deb
-    #     dest: /home/ubuntu/code-server
-
-    # - name: Unpack the downloaded archive in /usr/lib/code-server
-    #   shell: tar -xzvf /home/ubuntu/code-server/code-server-4.6.0-linux-amd64.tar.gz
-
-    # - name: copy
-    #   shell: cp -r code-server-4.6.0-linux-amd64 /usr/lib/code-server
-
-    # - name: Create a symbolic link
-    #   shell: ln -s /usr/lib/code-server/code-server-4.6.0-linux-amd64 /usr/bin/code-server
-    # - name: Create a symbolic link
-    #   shell: curl -fsSL https://code-server.dev/install.sh | sh
-
-    # - name: Create a symbolic link
-    #   shell: systemctl --user enable --now code-server
-# https://github.com/coder/code-server/releases/download/v4.3.0/code-server_4.3.0_amd64.deb
     - name: Check if we have already downloaded this DEB file
       ansible.builtin.stat:
         path: "/var/cache/apt/archives/codeserver.deb"
@@ -54,40 +17,18 @@
       ansible.builtin.get_url: 
         url: https://github.com/coder/code-server/releases/download/v4.6.0/code-server_4.6.0_amd64.deb
         dest: "/var/cache/apt/archives/codeserver.deb"
-      # when: not (codeserver_debfile.stat.exists | bool)
 
-    # this installation creates a systemd file /usr/lib/systemd/system/code-server@.service
     - name: "Install code-server"
       ansible.builtin.apt:
         deb: "/var/cache/apt/archives/codeserver.deb"
       notify: restart code-server
 
-    # at this point, symlink is created and config file is created:
-    # /etc/systemd/system/default.target.wants/code-server@taha.service → /usr/lib/systemd/system/code-server@.service
-    # ~/.config/code-server/config.yaml
     - name: Enable code-server systemd job for the first time
       ansible.builtin.systemd:
         enabled: yes
         daemon_reload: yes
         state: started
         name: "code-server@{{ ansible_env.USER }}"
-
-
-    # - name: Unpack the downloaded archive in /usr/lib/code-server
-    #   unarchive:
-    #     src:  /home/ubuntu/code-server/code-server-4.6.0-linux-amd64.tar.gz
-    #     dest: /usr/lib/code-server
-
-    # - name: change name to code-server
-    #   copy:
-    #     src: /usr/lib/code-server/code-server-4.6.0-linux-amd64
-    #     dest: /usr/lib/code-server/code-server
-
-    # - name: Create a symbolic link
-    #   file:
-    #     src: /usr/bin/code-server
-    #     dest: /usr/lib/code-server/code-server-4.6.0-linux-amd64
-    #     state: link
 
     - name: copy systemd config
       copy:
