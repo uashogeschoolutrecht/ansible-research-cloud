@@ -22,6 +22,11 @@
       ansible.builtin.apt:
         deb: "/var/cache/apt/archives/codeserver.deb"
       notify: restart code-server
+      
+    - name: "Install nginx pam auth"
+      apt:
+        name: libnginx-mod-http-auth-pam
+        state: present
 
     - name: Enable code-server systemd job for the first time
       ansible.builtin.systemd:
