@@ -3,6 +3,7 @@
   gather_facts: yes
   become: yes
   roles:
+    - python3.7-ds
 
   vars_files:
     - ./group_vars/vscode
