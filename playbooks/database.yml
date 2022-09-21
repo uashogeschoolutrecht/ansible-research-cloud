@@ -1,0 +1,11 @@
+- hosts: 127.0.0.1
+  connection: local
+  roles:
+    - docker
+  vars_files:
+    - ./group_vars/database
+
+  tasks:
+    - name: I am confused, who am i.
+      command: 'whoami'
+      register: myidentity
