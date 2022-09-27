@@ -4,6 +4,8 @@
   become: yes
   roles:
     - python3.7-ds
+    - nginx-pam
+    - nginx-fastcgi
 
   vars_files:
     - ./group_vars/vscode
