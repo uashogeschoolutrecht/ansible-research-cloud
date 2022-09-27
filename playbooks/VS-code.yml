@@ -26,10 +26,10 @@
         deb: "/var/cache/apt/archives/codeserver.deb"
       notify: restart code-server
       
-    - name: "Install nginx pam auth"
-      apt:
-        name: libnginx-mod-http-auth-pam
-        state: present
+    # - name: "Install nginx pam auth"
+    #   apt:
+    #     name: libnginx-mod-http-auth-pam
+    #     state: present
 
     - name: Enable code-server systemd job for the first time
       ansible.builtin.systemd:
@@ -48,18 +48,18 @@
         src: ../files/vscode/nginx.conf
         dest: /etc/nginx/app-location-conf.d/vscode.conf
 
-    - name: copy nginx pam file
-      copy:
-        src: ../files/vscode/nginx
-        dest: /etc/pam.d/nginx
+    # - name: copy nginx pam file
+    #   copy:
+    #     src: ../files/vscode/nginx
+    #     dest: /etc/pam.d/nginx
 
-    - name: add nginx to shadow file
-      shell: |
-        groupadd shadow
-        usermod -a -G shadow www-data
-        chown root:shadow /etc/shadow
-        chmod g+r /etc/shadow
-      notify: restart nginx
+    # - name: add nginx to shadow file
+    #   shell: |
+    #     groupadd shadow
+    #     usermod -a -G shadow www-data
+    #     chown root:shadow /etc/shadow
+    #     chmod g+r /etc/shadow
+    #   notify: restart nginx
 
     - name: "Start code-server with our command-line flags"
       ansible.builtin.template:
