@@ -31,8 +31,8 @@ function DownloadAtlasti([string] $url, [string] $downloadLocation, [int] $retri
 }
 
 try {
-    DownloadAtlasti -url "https://github.com/StefHi/Atlasti/releases/download/v22.2/Atlasti_22.2.exe" -downloadLocation ".\Atlasti_driver.exe" -retries 3
-    Start-Process "Atlasti_driver.exe" -argumentlist "-s" -wait
+    DownloadAtlasti -url "https://cdn.atlasti.com/win/22/Atlasti_22.2.msi" -downloadLocation ".\Atlasti_22.2.msi" -retries 3
+    Start-Process msiexec.exe -Wait -ArgumentList '/I Atlasti_22.2.msi /QN /L*V "msilog.log"' -Verb RunAs
 } catch {
     Write-Host "Atlasti installation has failed with the following error: $_"
     Throw "Aborted Atlasti installation returned $_"
