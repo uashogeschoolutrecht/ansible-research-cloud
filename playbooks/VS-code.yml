@@ -24,7 +24,7 @@
     - name: "Install code-server"
       ansible.builtin.apt:
         deb: "/var/cache/apt/archives/codeserver.deb"
-      notify: restart code-server
+      # notify: restart code-server
       
     # - name: "Install nginx pam auth"
     #   apt:
