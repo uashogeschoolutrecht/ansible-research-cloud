@@ -47,6 +47,7 @@
       copy:
         src: ../files/vscode/nginx.conf
         dest: /etc/nginx/app-location-conf.d/vscode.conf
+      notify: restart nginx
 
     # - name: copy nginx pam file
     #   copy:
