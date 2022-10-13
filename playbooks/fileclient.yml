@@ -1,0 +1,12 @@
+- hosts: 127.0.0.1
+  connection: local
+  roles:
+    - fileclient
+
+  vars_files:
+    - ./group_vars/fileclient
+
+  tasks:
+    - name: I will become a fileclient
+      command: 'whoami'
+      register: myidentity
