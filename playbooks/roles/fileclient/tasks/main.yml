@@ -13,48 +13,44 @@
     group: ubuntu
     mode: 0600
 
-- name: enable user_allow_other in fuse config
-  lineinfile:
-    path: /etc/fuse.conf
-    regexp: '^#user_allow_other$'
-    line: 'user_allow_other'
-    state: present
+# not sure if needed
+# 
+# - name: enable user_allow_other in fuse config
+#   lineinfile:
+#     path: /etc/fuse.conf
+#     regexp: '^#user_allow_other$'
+#     line: 'user_allow_other'
+#     state: present
 
 # Do not show warnings about unknown SSH keys
 - name: add ip_fileserver to know_hosts 
   shell: "ssh-keyscan {{ ip_fileserver }}>> ~/.ssh/known_hosts"
 
-- name: Ensure /usr/local/bin/ dir exists
+
+- name: Create dir for disk mount
   file:
-    path: /usr/local/bin/
+    path: /data/{{ folder_name }}
     state: directory
-    mode: 0777
+    recurse: yes
 
-- name: Create script for pam
-  copy:
-    src: sshfs_mount.sh
-    dest: /usr/local/bin/sshfs_mount.sh
-    mode: 0777
+- name: Adding fstab entry for gdelt remote mount point
+  mount:
+    path: /data/{{ folder_name }}
+    src: "sshfs_user@{{ ip_fileserver }}:/data"
+    fstype: fuse.sshfs
+    opts: "defaults,_netdev,idmap=user,follow_symlinks,identityfile=/home/ubuntu/.ssh/id_rsa,allow_other,default_permissions"
+    state: mounted
 
-- name: Edit sshfs_mount.sh to set the correct server url
-  lineinfile:
-    path: /usr/local/bin/sshfs_mount.sh
-    regexp: '^FILESERVER_URL='
-    line: "FILESERVER_URL={{ ip_fileserver }}"
 
-- name: Edit sshfs_mount.sh to set the correct remote volume name
-  lineinfile:
-    path: /usr/local/bin/sshfs_mount.sh
-    regexp: '^REMOTE_VOLUME='
-    line: "REMOTE_VOLUME=volume_2"
+- name: Change permissions
+  file:
+    path: /data/{{ folder_name }}
+    mode: 0755
+    recurse: no
+    state: directory
 
-- name: Create pam entry for mounting sshfs
-  register: pam_sshfs
-  copy:
-    dest: /usr/share/pam-configs/sshfs
-    mode: 0644
-    src: pam-configs/sshfs
 
-- name: Update pam for sshfs
-  when: pam_sshfs is changed
-  command: pam-auth-update --package sshfs
+
+
+
+
