@@ -10,3 +10,7 @@
     - name: I will become a fileserver
       command: 'whoami'
       register: myidentity
+
+
+
+    
