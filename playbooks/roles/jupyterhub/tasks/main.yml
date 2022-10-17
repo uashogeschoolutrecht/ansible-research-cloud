@@ -1,0 +1,74 @@
+---
+- name: download jupyterHub bootstrap script
+  get_url:
+    url: "{{ tljh_bootstrap_script }}"
+    dest: /home/ansible
+  register: bootstrap_download
+
+- name: run JupyterHub bootstrap script
+  shell: "python3 {{ bootstrap_download.dest }}"
+      
+- name: disable idle culling
+  shell: tljh-config set services.cull.enabled False
+
+- name: set jupyterlab as default
+  shell: tljh-config set user_environment.default_app jupyterlab
+
+- name: set pam authentication
+  shell: tljh-config set auth.type jupyterhub.auth.PAMAuthenticator
+
+- name: update conda
+  shell: source /opt/tljh/user/bin/activate && conda update --all --yes --quiet conda
+  args:
+    executable: /bin/bash
+
+- name: install git plugin
+  shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge jupyterlab-git
+  args:
+    executable: /bin/bash
+
+- name: install r kernel
+  shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge r-essentials
+  args:
+    executable: /bin/bash
+
+- name: allow jupyterhub users passwordless sudo
+  lineinfile:
+    path: /etc/sudoers.d/jupyterhub-admins
+    line: "%jupyterhub-users ALL = (ALL) NOPASSWD: ALL\nDefaults exempt_group = jupyterhub-users"
+    mode: '0644'
+
+- name: create exchange directory for nbgrader
+  file:
+    path: /srv/nbgrader/exchange
+    state: directory
+    group: jupyterhub-users
+    mode: '0777'
+
+- name: install nbgrader plugin
+  shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge nbgrader
+  args:
+    executable: /bin/bash
+
+- name: disable nbgrader user permissions
+  shell: "/opt/tljh/user/bin/jupyter nbextension disable --sys-prefix create_assignment/main \
+          && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix formgrader/main --section=tree \
+          && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix course_list/main --section=tree"
+
+- name: change default traefik port
+  shell: tljh-config set http.port 8080
+
+- name: copy nginx config
+  copy:
+    src: ../files/jupyter/nginx.conf
+    dest: /etc/nginx/app-location-conf.d/jupyter.conf
+  notify: restart nginx
+
+- name: reload hub configuration
+  shell: tljh-config reload proxy && tljh-config reload hub
+
+  handlers:
+    - name: restart nginx
+      service: 
+        name: nginx
+        state: restarted

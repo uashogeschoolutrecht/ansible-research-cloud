@@ -2,11 +2,22 @@
   connection: local
   roles:
     - fileclient
+    - workspace
+    - python3.7-ds
+    - jupyterhub
 
   vars_files:
     - ./group_vars/fileclient
 
   tasks:
-    - name: I will become a fileclient
-      command: 'whoami'
-      register: myidentity
+    - name: copy nginx config
+      copy:
+        src: ../files/jupyter/nginx.conf
+        dest: /etc/nginx/app-location-conf.d/jupyter.conf
+      notify: restart nginx
+  
+  handlers:
+    - name: restart nginx
+      service: 
+        name: nginx
+        state: restarted
