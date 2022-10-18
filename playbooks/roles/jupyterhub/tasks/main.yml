@@ -67,8 +67,3 @@
 - name: reload hub configuration
   shell: tljh-config reload proxy && tljh-config reload hub
 
-handlers:
-  - name: restart nginx
-    service: 
-      name: nginx
-      state: restarted

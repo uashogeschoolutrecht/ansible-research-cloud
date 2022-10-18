@@ -11,6 +11,12 @@
       command: 'whoami'
       register: myidentity
 
+  handlers:
+    - name: restart nginx
+      service: 
+        name: nginx
+        state: restarted
+
 
 
     
