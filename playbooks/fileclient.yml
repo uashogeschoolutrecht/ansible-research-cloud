@@ -15,9 +15,3 @@
         src: ../files/jupyter/nginx.conf
         dest: /etc/nginx/app-location-conf.d/jupyter.conf
       notify: restart nginx
-  
-  handlers:
-    - name: restart nginx
-      service: 
-        name: nginx
-        state: restarted
