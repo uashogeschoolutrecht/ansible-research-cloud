@@ -31,8 +31,11 @@ function DownloadAtlasti([string] $url, [string] $downloadLocation, [int] $retri
 }
 
 try {
-    DownloadAtlasti -url "https://cdn.atlasti.com/win/22/Atlasti_22.2.msi" -downloadLocation ".\Atlasti_22.2.msi" -retries 3
-    Start-Process msiexec.exe -Wait -ArgumentList '/I Atlasti_22.2.msi /QN /L*V "msilog.log"' -Verb RunAs
+    DownloadAtlasti -url "https://cdn.atlasti.com/win/22/Atlasti_22.2.msi" -downloadLocation ".\Atlasti_22.2.msi" -retries 3;
+    DownloadAtlasti -url https://go.microsoft.com/fwlink/p/?LinkId=2124703 -downloadLocation ".\MicrosoftEdgeWebview2Setup.exe" -retries 3
+    Start-Process msiexec.exe -Wait -ArgumentList '/i Atlasti_22.2.msi /qn' -Verb RunAs
+    Start-process MicrosoftEdgeWebview2Setup.exe -Wait -ArgumentList '/silent /install'
+
 } catch {
     Write-Host "Atlasti installation has failed with the following error: $_"
     Throw "Aborted Atlasti installation returned $_"
