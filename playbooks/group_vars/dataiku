@@ -1,0 +1,5 @@
+    dss_service_user: dataiku
+    dss_install_dir_location: /opt/dataiku
+    dss_version: "10.0.2"
+    port: 11000
+    datadir: production
