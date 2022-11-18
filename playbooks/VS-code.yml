@@ -4,8 +4,6 @@
   become: yes
   roles:
     - python3.7-ds
-    - nginx-pam
-    - nginx-fastcgi
 
   vars_files:
     - ./group_vars/vscode
@@ -24,63 +22,17 @@
     - name: "Install code-server"
       ansible.builtin.apt:
         deb: "/var/cache/apt/archives/codeserver.deb"
-      notify: restart code-server
       
-    # - name: "Install nginx pam auth"
-    #   apt:
-    #     name: libnginx-mod-http-auth-pam
-    #     state: present
 
-    - name: Enable code-server systemd job for the first time
-      ansible.builtin.systemd:
-        enabled: yes
-        daemon_reload: yes
-        state: started
-        name: "code-server@{{ ansible_env.USER }}"
+    - name: "Install JupyterHub"
+      ansible.builtin.pip:
+        name: jupyterhub
 
-    - name: copy systemd config
-      copy:
-        src: ../files/vscode/code-server.service
-        dest: /lib/systemd/system/code-server.service
+    - name: "Install configurable-http-proxy"
+      community.general.npm:
+        name: "configurable-http-proxy"
+        global: true
 
-    - name: copy nginx config
-      copy:
-        src: ../files/vscode/nginx.conf
-        dest: /etc/nginx/app-location-conf.d/vscode.conf
-      notify: restart nginx
-
-    # - name: copy nginx pam file
-    #   copy:
-    #     src: ../files/vscode/nginx
-    #     dest: /etc/pam.d/nginx
-
-    # - name: add nginx to shadow file
-    #   shell: |
-    #     groupadd shadow
-    #     usermod -a -G shadow www-data
-    #     chown root:shadow /etc/shadow
-    #     chmod g+r /etc/shadow
-    #   notify: restart nginx
-
-    - name: "Start code-server with our command-line flags"
-      ansible.builtin.template:
-        src: ../templates/vscode/code-server.service.j2
-        dest: "/usr/lib/systemd/system/code-server@.service"
-        owner: root
-        group: root
-        mode: u=rw,go=r
-      notify: restart code-server
-      
-  handlers:
-    - name: restart nginx
-      service:
-        name: nginx
-        state: restarted
-      ignore_errors: yes
-
-    - name: restart code-server
-      ansible.builtin.systemd:
-        state: restarted
-        daemon_reload: yes
-        name: "code-server@{{ ansible_env.USER }}.service"
-      ignore_errors: yes
+    - name: "Install jupyterlab notebook"
+      ansible.builtin.pip:
+        name: jupyterlab notebook
