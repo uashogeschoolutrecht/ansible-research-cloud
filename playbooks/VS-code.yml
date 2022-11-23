@@ -55,4 +55,6 @@
       shell: "npm install -g configurable-http-proxy"
 
     - name: "Install jupyterlab notebook"
-      shell: python3 -m pip install jupyterlab notebook
+      #shell: python3 -m pip install jupyterlab notebook
+      ansible.builtin.pip:
+        name: jupyterlab
