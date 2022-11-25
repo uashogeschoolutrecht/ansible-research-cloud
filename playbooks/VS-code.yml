@@ -9,7 +9,7 @@
     - ./group_vars/vscode
 
   # Install and configure jupyterhub
-  - import_playbook: jupyterhub.yml
+  import_playbook: jupyterhub.yml
 
   tasks:
     # install code-server
