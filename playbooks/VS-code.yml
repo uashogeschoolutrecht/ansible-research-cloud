@@ -8,10 +8,10 @@
   vars_files:
     - ./group_vars/vscode
 
-  tasks:
-    # Install and configure jupyterhub
-    - import_playbook: jupyterhub.yml
+  # Install and configure jupyterhub
+  - import_playbook: jupyterhub.yml
 
+  tasks:
     # install code-server
     - name: Check if we have already downloaded this DEB file
       ansible.builtin.stat:
