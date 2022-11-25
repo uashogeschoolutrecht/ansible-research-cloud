@@ -10,7 +10,7 @@
 
   tasks:
     # Install and configure jupyterhub
-    - include: jupyterhub.yml
+    - import_playbook: jupyterhub.yml
 
     # install code-server
     - name: Check if we have already downloaded this DEB file
