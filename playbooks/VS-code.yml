@@ -99,6 +99,8 @@
     - name: "Install VSCode code-server for proxying"
       ansible.builtin.pip:
         name: "jupyter-vscode-proxy"
+        # only for getting the vm up and running and debuggin
+        ignore_errors: true
 
   handlers:
     - name: restart nginx
