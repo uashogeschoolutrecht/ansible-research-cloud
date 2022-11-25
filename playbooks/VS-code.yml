@@ -8,28 +8,9 @@
   vars_files:
     - ./group_vars/vscode
 
-  vars:
-    # error when installing latest (node v18) on ubuntu 18, therefore node version 16 is installed
-    NODEJS_VERSION: "16"
-
   tasks:
-    # Node install needs to be moved to role
-    - name: Install the gpg key for nodejs LTS
-      apt_key:
-        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
-        state: present
-    
-    - name: Install the nodejs LTS repos
-      apt_repository:
-        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
-        state: present
-        update_cache: yes
-
-    - name: Install the nodejs
-      apt:
-        name: nodejs
-        state: present
-    # End node install
+    # Install and configure jupyterhub
+    - include: jupyterhub.yml
 
     # install code-server
     - name: Check if we have already downloaded this DEB file
@@ -47,14 +28,7 @@
         deb: "/var/cache/apt/archives/codeserver.deb"
     # end code-server install
 
-    - name: "Install JupyterHub"
+    - name: "Install VSCode code-server for proxying"
       ansible.builtin.pip:
-        name: jupyterhub
+        name: "jupyter-vscode-proxy"
 
-    - name: "Install configurable-http-proxy"
-      shell: "npm install -g configurable-http-proxy"
-
-    - name: "Install jupyterlab notebook"
-      #shell: python3 -m pip install jupyterlab notebook
-      ansible.builtin.pip:
-        name: jupyterlab
