@@ -11,73 +11,114 @@
 
   tasks:
     # Start Jupyterhub install
-    - name: download jupyterHub bootstrap script
-      get_url:
-        url: "{{ tljh_bootstrap_script }}"
-        dest: /home/ansible
-      register: bootstrap_download
-  
-    - name: run JupyterHub bootstrap script
-      shell: "python3 {{ bootstrap_download.dest }}"
-          
-    - name: disable idle culling
-      shell: tljh-config set services.cull.enabled False
+    - name: Install required packages
+      when: ansible_distribution_major_version == "20"
+      package:
+        name:
+          - apt-transport-https
+          - python3
+          - python3-setuptools
+          - python3-pip
+          - jq
+          - curl
+        state: present
 
-    - name: set jupyterlab as default
-      shell: tljh-config set user_environment.default_app jupyterlab
-
-    - name: set pam authentication
-      shell: tljh-config set auth.type jupyterhub.auth.PAMAuthenticator
-
-    - name: update conda
-      shell: source /opt/tljh/user/bin/activate && conda update --all --yes --quiet conda
-      args:
-        executable: /bin/bash
-
-    - name: install git plugin
-      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge jupyterlab-git
-      args:
-        executable: /bin/bash
-
-    - name: install r kernel
-      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge r-essentials
-      args:
-        executable: /bin/bash
-
-    - name: allow jupyterhub users passwordless sudo
-      lineinfile:
-        path: /etc/sudoers.d/jupyterhub-admins
-        line: "%jupyterhub-users ALL = (ALL) NOPASSWD: ALL\nDefaults exempt_group = jupyterhub-users"
-        mode: '0644'
-
-    - name: create exchange directory for nbgrader
-      file:
-        path: /srv/nbgrader/exchange
-        state: directory
-        group: jupyterhub-users
-        mode: '0777'
-
-    - name: install nbgrader plugin
-      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge nbgrader
-      args:
-        executable: /bin/bash
-
-    - name: disable nbgrader user permissions
-      shell: "/opt/tljh/user/bin/jupyter nbextension disable --sys-prefix create_assignment/main \
-              && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix formgrader/main --section=tree \
-              && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix course_list/main --section=tree"
-
-    - name: change default traefik port
-      shell: tljh-config set http.port 9000
-
-    - name: copy nginx config
+    - name: Copy nodejs installer
       copy:
-        src: ../files/jupyter/nginx.conf
-        dest: /etc/nginx/app-location-conf.d/jupyter.conf
-      notify: restart nginx
+        src: files/nodejs-installer.sh
+        dest: /tmp/nodejs-installer.sh
+        mode: 0755
 
-    - name: reload hub configuration
-      shell: tljh-config reload proxy && tljh-config reload hub
+    - name: Execute nodejs ppa installer
+      command: /tmp/nodejs-installer.sh
+
+    - name: Remove nodejs ppa installer
+      file:
+        path: /tmp/nodejs-installer.sh
+        state: absent
+
+    - name: Install NodeJS
+      apt:
+        name: "{{ packages }}"
+        allow_unauthenticated: true
+      vars:
+        packages:
+          - nodejs
+
+    - name: Ensure python 3 packages for Jupyter are installed
+      pip:
+        name: "{{ packages }}"
+        executable: pip3
+      vars:
+        packages:
+          - jinja2==3.0.3
+          - markupsafe==2.0.1
+          - jupyterlab==3.4.2
+          - jupyterhub==2.3.0
+          - virtualenv==20.14.1
+          - jupyterlab-git==0.37.1
+
+    - name: Ensure configurable-http-proxy is installed
+      npm:
+        global: true
+        name: configurable-http-proxy
+#          version: '4.3.2'
+
+    - name: Ensure Jupyter configuration directory exists
+      file:
+        path: /etc/jupyterhub/
+        state: directory
+
+    - name: Ensure systemd directory exists
+      file:
+        path: /usr/lib/systemd/system
+        state: directory
+
+    - name: Create nginx location block
+      copy:
+        dest: /etc/nginx/app-location-conf.d/jupyterhub.conf
+        mode: 0644
+        content: |
+          location / {
+              proxy_pass http://127.0.0.1:8000;
+              proxy_redirect http://localhost:8000/ $scheme://$host/;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header Host $host;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection $connection_upgrade;
+              client_max_body_size 10G;
+          }
+
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Ensure jupyter configuration is in place
+      copy:
+        dest: /etc/jupyterhub/jupyterhub_config.py
+        content: |
+          c.Spawner.default_url = '/lab?reset'
+          c.Spawner.notebook_dir = '~'
+          c.Authenticator.admin_users = {'{{ ssh_user | default('ubuntu', true) }}'}
+
+    - name: Ensure jupyter systemd config is in place
+      copy:
+        dest: /usr/lib/systemd/system/jupyterhub.service
+        content: |
+          [Unit]
+          Description=Jypyter Hub daemon
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/jupyterhub --config=/etc/jupyterhub/jupyterhub_config.py
+          Restart=on-failure
+          RestartSec=42s
+
+          [Install]
+          WantedBy=multi-user.target
     # End Jupyterhub install
 
     # install code-server
@@ -99,6 +140,24 @@
     - name: "Install VSCode code-server for proxying"
       ansible.builtin.pip:
         name: "jupyter-vscode-proxy"
+
+    - name: Upgrade nbdime
+      pip:
+        name: nbdime
+        extra_args: --upgrade
+
+    - name: Reload jupyterhub service
+      systemd:
+        state: restarted
+        daemon_reload: true
+        name: jupyterhub
+
+    - name: Ensure Jupyterhub is started
+      register: start_jupyterhub
+      service:
+        name: jupyterhub
+        state: restarted
+        enabled: true        
 
   handlers:
     - name: restart nginx
