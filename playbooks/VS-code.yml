@@ -68,7 +68,7 @@
               && /opt/tljh/user/bin/jupyter nbextension disable --sys-prefix course_list/main --section=tree"
 
     - name: change default traefik port
-      shell: tljh-config set http.port 8080
+      shell: tljh-config set http.port 9000
 
     - name: copy nginx config
       copy:
@@ -96,11 +96,9 @@
         deb: "/var/cache/apt/archives/codeserver.deb"
     # end code-server install
 
-    #- name: "Install VSCode code-server for proxying"
-    #  ansible.builtin.pip:
-    #    name: "jupyter-vscode-proxy"
-    #    # only for getting the vm up and running and debuggin
-    #    ignore_errors: true
+    - name: "Install VSCode code-server for proxying"
+      ansible.builtin.pip:
+        name: "jupyter-vscode-proxy"
 
   handlers:
     - name: restart nginx
