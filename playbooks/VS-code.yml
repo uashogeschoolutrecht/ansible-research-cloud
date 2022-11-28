@@ -141,6 +141,12 @@
       ansible.builtin.pip:
         name: "jupyter-vscode-proxy"
 
+    - name: "Make directory /data accessible for everybody as work directory"
+      file:
+        path: /data
+        state: directory
+        mode: 0777
+
     - name: Upgrade nbdime
       pip:
         name: nbdime
