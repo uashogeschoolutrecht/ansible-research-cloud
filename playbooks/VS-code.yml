@@ -9,6 +9,10 @@
   vars_files:
     - ./group_vars/vscode
 
+  vars:
+    # error when installing latest (node v18) on ubuntu 18, therefore node version 16 is installed
+    NODEJS_VERSION: "16"    
+
   tasks:
     # Start Jupyterhub install
     - name: Install required packages
@@ -23,27 +27,23 @@
           - curl
         state: present
 
-    - name: Copy nodejs installer
-      copy:
-        src: files/nodejs-installer.sh
-        dest: /tmp/nodejs-installer.sh
-        mode: 0755
+    # Node install (needs to be moved to role)
+    - name: Install the gpg key for nodejs LTS
+      apt_key:
+        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+        state: present
 
-    - name: Execute nodejs ppa installer
-      command: /tmp/nodejs-installer.sh
+    - name: Install the nodejs LTS repos
+      apt_repository:
+        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
+        state: present
+        update_cache: yes
 
-    - name: Remove nodejs ppa installer
-      file:
-        path: /tmp/nodejs-installer.sh
-        state: absent
-
-    - name: Install NodeJS
+    - name: Install the nodejs
       apt:
-        name: "{{ packages }}"
-        allow_unauthenticated: true
-      vars:
-        packages:
-          - nodejs
+        name: nodejs
+        state: present
+    # End node install
 
     - name: Ensure python 3 packages for Jupyter are installed
       pip:
