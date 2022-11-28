@@ -121,6 +121,12 @@
           WantedBy=multi-user.target
     # End Jupyterhub install
 
+    - name: Copy modified HU login page for jupyterhub
+      copy:
+        src: ../files/vscode/jupyterhub/login.html
+        dest: /usr/local/share/jupyterhub/templates/login.html
+        force: true
+
     # install code-server
     - name: Check if we have already downloaded this DEB file
       ansible.builtin.stat:
