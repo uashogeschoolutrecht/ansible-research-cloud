@@ -1,0 +1,14 @@
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
+.Rproj.user
+.Rhistory
+Rmd
+*.Rmd
+docs-hpc.Rproj
+Gemfile.lock
+gettingstarted.md
+introrstudio.md
+.DS_Store
