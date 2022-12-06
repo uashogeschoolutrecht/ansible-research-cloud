@@ -1,3 +1,5 @@
+[![Deploy Jekyll with GitHub Pages](https://github.com/uashogeschoolutrecht/ansible-research-cloud/actions/workflows/pages.yml/badge.svg)](https://github.com/uashogeschoolutrecht/ansible-research-cloud/actions/workflows/pages.yml)
+
 # ansible Provisioning on SURF Research Cloud
 This repository contains Ansible configuration scripts that are used to set up and configure a virtual machine running on [SURF ResearchCloud](https://portal.live.surfresearchcloud.nl). Every user of SURF Research Cloud is able to create Catalog items from this repository and should point there plugins to the playbooks in the /playbooks folder. 
 
