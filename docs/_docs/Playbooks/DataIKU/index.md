@@ -2,6 +2,7 @@
 layout: default
 title: Dataiku DSS
 parent: Playbooks
+toc: true
 has_children: false
 ---
 

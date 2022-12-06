@@ -3,6 +3,8 @@ layout: default
 title: VS Code
 parent: Playbooks
 has_children: false
+toc: true
+
 ---
 
 # Playbook Visual Studio Code server
