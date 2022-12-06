@@ -1,11 +1,11 @@
-title: HU Research Engineering Group
-description: Playbook to guide all engineering questions within the HU.
+title: HU Developer Documentation ansible Research Cloud
+description: Documentation website for all ansible scripts developed for SURF Research Cloud
 logo: "/assets/hu-logo.svg"
 
 # Aux links for the upper right navigation
 aux_links:
   "Pas dit playbook aan op GitHub":
-    - "//github.com/uashogeschoolutrecht/ResearchEngineeringGroup"
+    - "//github.com/uashogeschoolutrecht/ansible-research-cloud"
 
 # Footer content 
 # appears at the bottom of every page's main content
@@ -14,8 +14,8 @@ footer_content: "CC BY-NC 4.0 Hogeschool Utrecht."
 # Footer "Edit this page on GitHub" link text
 gh_edit_link: true
 gh_edit_link_text: "Edit this page on GitHub."
-gh_edit_repository: "https://github.com/uashogeschoolutrecht/ResearchEngineeringGroup"
-gh_edit_branch: "master"
+gh_edit_repository: "https://github.com/uashogeschoolutrecht/ansible-research-cloud"
+gh_edit_branch: "main"
 gh_edit_view_mode: "tree"
 
 
