@@ -12,7 +12,6 @@ has_children: false
 
 Installs the Dataiku DSS on a server behind a NGINX proxy with standard login. The playbook also checks if there is attached storage and moves its DATA_DIR accordingly. 
 
-
 ## Depends on
 -   NGINX plugin on research cloud.
 
