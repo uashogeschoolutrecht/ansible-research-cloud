@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Dataiku DSS
+title: Atlas.ti
 parent: Playbooks
 toc: true
 has_children: false
