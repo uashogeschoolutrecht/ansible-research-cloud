@@ -31,7 +31,7 @@
 - name: install example script
   copy:
     src: "example-script.sh"
-    dest: "/var/www/cgi-bin/hello"
+    dest: "/var/www/cgi-bin/start-daemon"
     owner: "root"
     group: "root"
     mode: "0755"

@@ -1,1 +1,46 @@
-theme: jekyll-theme-minimal
+title: HU Developer Documentation ansible Research Cloud
+description: Documentation website for all ansible scripts developed for SURF Research Cloud
+logo: "/assets/hu-logo.svg"
+
+# Aux links for the upper right navigation
+aux_links:
+  "Edit this page on GitHub ":
+    - "//github.com/uashogeschoolutrecht/ansible-research-cloud"
+
+# Footer content 
+# appears at the bottom of every page's main content
+footer_content: "CC BY-NC 4.0 Hogeschool Utrecht."
+
+# Footer "Edit this page on GitHub" link text
+gh_edit_link: true
+gh_edit_link_text: "Edit this page on GitHub."
+gh_edit_repository: "//github.com/uashogeschoolutrecht/ansible-research-cloud"
+
+
+
+# Build settings
+theme: just-the-docs
+plugins:
+  - jekyll-feed
+
+# Define Jekyll collections
+collections:
+  # Define a collection named "docs", its documents reside in the "_docs" directory
+  docs:
+    permalink: "/:collection/:path/"
+    output: true
+
+just_the_docs:
+  # Define which collections are used in just-the-docs
+  collections:
+    # Reference the "docs" collection
+    docs:
+      # Give the collection a name
+      name: Documentation
+      # Exclude the collection from the navigation
+      # Supports true or false (default)
+      nav_exclude: false
+      # Exclude the collection from the search
+      # Supports true or false (default)
+      search_exclude: false
+

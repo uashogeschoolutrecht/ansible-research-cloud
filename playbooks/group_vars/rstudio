@@ -1,4 +1,4 @@
-    bspm_version: bspm_0.3.10
-    rstudio_version: rstudio-server-1.4.1717-amd64
-    rstudio_pro_version: rstudio-workbench-1.4.1717-3-amd64
+    bspm_version: bspm_0.4.0
+    rstudio_version: rstudio-server-2022.07.1-554-amd64
+    rstudio_pro_version: rstudio-pro-2022.07.1-554.pro3-amd64.deb
     python_base_dir: 3.7-base

@@ -1,2 +1,16 @@
-## Playbooks
-- [Windows-Atlasti](playbooks/windows-atlasti.md) Atlas.ti in a windows 2019 enviroment
+---
+layout: default
+title: Home
+has_children: true
+---
+
+{% include banner.html %}
+
+## HU Developer Documentation ansible Research Cloud
+
+This is the developer documentation for catalogus items on research cloud. For end user documentation check: [datascience.hu.nl](https://datascience.hu.nl)
+
+We devided this documentation in a section for playbooks and a section for roles. The playbooks should be used as a SURF ResearchCloud plugin.
+
+The roles serve as reusable building blocks for these playbooks. 
+
