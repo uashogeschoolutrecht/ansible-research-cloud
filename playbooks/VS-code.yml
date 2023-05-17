@@ -102,6 +102,7 @@
           c.Spawner.default_url = '/lab?reset'
           c.Spawner.notebook_dir = '~'
           c.Authenticator.admin_users = {'{{ ssh_user | default('ubuntu', true) }}'}
+          c.NotebookApp.disable_check_xsrf = TRUE
 
     - name: Ensure jupyter systemd config is in place
       copy:
