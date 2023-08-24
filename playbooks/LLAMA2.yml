@@ -135,7 +135,7 @@
 
     - name: "Download code-server"
       ansible.builtin.get_url: 
-        url: https://github.com/coder/code-server/releases/download/v4.16.1/code-server_4.16.1_amd64.deb
+        url: https://github.com/coder/code-server/releases/download/v4.6.0/code-server_4.6.0_amd64.deb
         dest: "/var/cache/apt/archives/codeserver.deb"
 
     - name: "Install code-server"
