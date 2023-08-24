@@ -1,0 +1,178 @@
+- hosts: 127.0.0.1
+  connection: local
+  gather_facts: yes
+  become: yes
+  roles:
+    - workspace  
+    - python3.7-ds
+
+  vars_files:
+    - ./group_vars/vscode
+
+  vars:
+    # error when installing latest (node v18) on ubuntu 18, therefore node version 16 is installed
+    NODEJS_VERSION: "16"    
+
+  tasks:
+    # Start Jupyterhub install
+    - name: Install required packages
+      when: ansible_distribution_major_version == "20"
+      package:
+        name:
+          - apt-transport-https
+          - python3
+          - python3-setuptools
+          - python3-pip
+          - jq
+          - curl
+        state: present
+
+    # Node install (needs to be moved to role)
+    - name: Install the gpg key for nodejs LTS
+      apt_key:
+        url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+        state: present
+
+    - name: Install the nodejs LTS repos
+      apt_repository:
+        repo: "deb https://deb.nodesource.com/node_{{ NODEJS_VERSION }}.x {{ ansible_distribution_release }} main"
+        state: present
+        update_cache: yes
+
+    - name: Install the nodejs
+      apt:
+        name: nodejs
+        state: present
+    # End node install
+
+    - name: Ensure python 3 packages for Jupyter are installed
+      pip:
+        name: "{{ packages }}"
+        executable: pip3
+      vars:
+        packages:
+          - jinja2==3.0.3
+          - markupsafe==2.0.1
+          - jupyterlab==3.4.2
+          - jupyterhub==3.1.1
+          - virtualenv==20.14.1
+          - jupyterlab-git==0.37.1
+
+    - name: Ensure configurable-http-proxy is installed
+      npm:
+        global: true
+        name: configurable-http-proxy
+#          version: '4.3.2'
+
+    - name: Ensure Jupyter configuration directory exists
+      file:
+        path: /etc/jupyterhub/
+        state: directory
+
+    - name: Ensure systemd directory exists
+      file:
+        path: /usr/lib/systemd/system
+        state: directory
+
+    - name: Create nginx location block
+      copy:
+        dest: /etc/nginx/app-location-conf.d/jupyterhub.conf
+        mode: 0644
+        content: |
+          location / {
+              proxy_pass http://127.0.0.1:8000;
+              proxy_redirect http://localhost:8000/ $scheme://$host/;
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header Host $host;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header Upgrade $http_upgrade;
+              proxy_set_header Connection $connection_upgrade;
+              client_max_body_size 10G;
+          }
+
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Ensure jupyter configuration is in place
+      copy:
+        dest: /etc/jupyterhub/jupyterhub_config.py
+        content: |
+          c.Spawner.default_url = '/lab?reset'
+          c.Spawner.notebook_dir = '~'
+          c.Authenticator.admin_users = {'{{ ssh_user | default('ubuntu', true) }}'}
+
+    - name: Ensure jupyter systemd config is in place
+      copy:
+        dest: /usr/lib/systemd/system/jupyterhub.service
+        content: |
+          [Unit]
+          Description=Jypyter Hub daemon
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart=/usr/local/bin/jupyterhub --config=/etc/jupyterhub/jupyterhub_config.py
+          Restart=on-failure
+          RestartSec=42s
+
+          [Install]
+          WantedBy=multi-user.target
+    # End Jupyterhub install
+
+    - name: Copy modified HU login page for jupyterhub
+      copy:
+        src: ../files/vscode/jupyterhub/login.html
+        dest: /usr/local/share/jupyterhub/templates/login.html
+        force: true
+
+    # install code-server
+    - name: Check if we have already downloaded this DEB file
+      ansible.builtin.stat:
+        path: "/var/cache/apt/archives/codeserver.deb"
+      register: codeserver_debfile
+
+    - name: "Download code-server"
+      ansible.builtin.get_url: 
+        url: https://github.com/coder/code-server/releases/download/v4.16.1/code-server_4.16.1_amd64.deb
+        dest: "/var/cache/apt/archives/codeserver.deb"
+
+    - name: "Install code-server"
+      ansible.builtin.apt:
+        deb: "/var/cache/apt/archives/codeserver.deb"
+    # end code-server install
+
+    - name: "Install VSCode code-server for proxying"
+      ansible.builtin.pip:
+        name: "jupyter-vscode-proxy"
+
+    - name: "Make directory /data accessible for everybody as work directory"
+      file:
+        path: /data
+        state: directory
+        mode: 0777
+
+    - name: Upgrade nbdime
+      pip:
+        name: nbdime
+        extra_args: --upgrade
+
+    - name: Reload jupyterhub service
+      systemd:
+        state: restarted
+        daemon_reload: true
+        name: jupyterhub
+
+    - name: Ensure Jupyterhub is started
+      register: start_jupyterhub
+      service:
+        name: jupyterhub
+        state: restarted
+        enabled: true        
+
+  handlers:
+    - name: restart nginx
+      service: 
+        name: nginx
+        state: restarted
