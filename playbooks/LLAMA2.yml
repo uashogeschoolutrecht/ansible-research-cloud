@@ -145,7 +145,7 @@
 
     - name: "Install VSCode code-server for proxying"
       ansible.builtin.pip:
-        name: "jupyter-vscode-proxy"
+        name: "jupyter-vscode-proxy==0.2"
 
     - name: "Make directory /data accessible for everybody as work directory"
       file:
