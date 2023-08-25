@@ -171,6 +171,20 @@
         state: restarted
         enabled: true        
 
+    - name: Get list of users from /home
+      shell: ls /home
+      register: users_output
+
+    - name: Clone and unpack repo for each user
+      git:
+        repo: 'https://github.com/uashogeschoolutrecht/LLAMA2.git'
+        dest: "/home/{{ item }}/LLAMA2"
+        clone: yes
+        update: yes
+      loop: "{{ users_output.stdout_lines }}"
+      become: yes
+      become_user: "{{ item }}"
+
   handlers:
     - name: restart nginx
       service: 
