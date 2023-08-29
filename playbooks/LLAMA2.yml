@@ -172,7 +172,7 @@
         enabled: true        
 
     - name: Get list of users using getent
-      shell: getent passwd | awk -F: '$3 >= 1000 && $3 < 65534 {print $1}'
+      shell: ls -l /home
       register: users_output
 
     - name: Clone and unpack repo for each user
