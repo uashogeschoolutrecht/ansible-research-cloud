@@ -172,7 +172,7 @@
         enabled: true        
 
     - name: Get list of users using getent
-      shell: ls -l /home
+      shell: ls /home
       register: users_output
 
     - name: Clone and unpack repo for each user
