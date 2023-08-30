@@ -185,6 +185,27 @@
       become: yes
       become_user: "{{ item }}"
 
+    - name: Ensure python3-venv is installed
+      apt:
+        name: python3-venv
+        state: present
+
+    - name: Create a Python virtual environment for each user
+      command: 
+        cmd: "python3 -m venv /home/{{ item }}/LLAMA2/venv"
+        creates: "/home/{{ item }}/LLAMA2/venv"
+      loop: "{{ users_output.stdout_lines }}"
+      become: yes
+      become_user: "{{ item }}"
+
+    - name: Install requirements.txt in the Python virtual environment for each user
+      pip:
+        requirements: "/home/{{ item }}/LLAMA2/requirements.txt"
+        virtualenv: "/home/{{ item }}/LLAMA2/venv"
+      loop: "{{ users_output.stdout_lines }}"
+      become: yes
+      become_user: "{{ item }}"
+
   handlers:
     - name: restart nginx
       service: 
