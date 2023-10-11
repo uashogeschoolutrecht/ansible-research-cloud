@@ -99,6 +99,7 @@
       copy:
         dest: /etc/jupyterhub/jupyterhub_config.py
         content: |
+          c.JupyterHub.ip = '127.0.0.1'
           c.Spawner.default_url = '/lab?reset'
           c.Spawner.notebook_dir = '~'
           c.Authenticator.admin_users = {'{{ ssh_user | default('ubuntu', true) }}'}
