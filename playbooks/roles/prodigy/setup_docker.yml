@@ -1,0 +1,52 @@
+---
+- name: Build and Run Docker Containers for Prodigy
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+
+  vars:
+    project_path: "/app"
+    docker_image_name: "prodigy"
+    docker_image_tag: "latest"
+
+  tasks:
+    - name: Install docker
+      apt:
+        name: docker
+        state: present   
+
+    - name: Install docker compose
+      apt:
+        name: docker-compose
+        state: present
+
+    - name: Ensure project directory exists
+      file:
+        path: "{{ project_path }}"
+        state: directory
+
+    - name: Copy Docker-related files to target
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ project_path }}/{{ item.dest }}"
+        mode: "{{ item.mode | default('0644') }}"
+      loop:
+        - { src: '/files/prodigy/docker/Dockerfile', dest: 'Dockerfile' }
+        - { src: '/files/prodigy/docker/docker-compose.yml', dest: 'docker-compose.yml' }
+        - { src: '/files/prodigy/docker/.dockerignore', dest: '.dockerignore' }
+        - { src: '/files/prodigy/requirements.txt', dest: 'requirements.txt' }
+        - { src: '/files/prodigy/run.sh', dest: 'run.sh' }
+        - { src: '/files/prodigy/.env', dest: '.env' }
+
+    - name: Build Docker image using secret
+      shell: |
+        docker-compose -f {{ project_path }}/docker-compose.yml -p app build --build-arg PRODIGY_KEY="{{ prodigy_key }}" 
+      args:
+        executable: /bin/bash
+
+    - name: Ensure Docker container is running
+      docker_compose:
+        project_src: "{{ project_path }}"
+        files:
+          - "docker-compose.yml"
+        state: present

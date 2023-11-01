@@ -1,0 +1,40 @@
+---
+- name: Configure Nginx for Prodigy
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+  
+  tasks:
+    - name: Install apache2-utils 
+      apt:
+        name:
+          - apache2-utils
+        state: present
+
+    - name: Ensure passlib is installed for htpasswd
+      ansible.builtin.pip:
+        name: passlib
+        state: present
+
+    - name: Ensure the htpasswd file exists and create a user
+      ansible.builtin.htpasswd:
+        path: /etc/nginx/.htpasswd
+        name: "{{ http_username }}"
+        password: "{{ http_password }}"
+        create: yes
+
+    - name: Copy nginx config file
+      copy:
+        src: /files/prodigy/nginx/nginx.conf
+        dest: /etc/nginx/app-location-conf.d
+
+    - name: Test Nginx configuration
+      command: nginx -t
+      register: result
+      ignore_errors: yes
+
+    - name: Ensure Nginx is running
+      systemd:
+        name: nginx
+        state: restarted
+      when: result.rc == 0

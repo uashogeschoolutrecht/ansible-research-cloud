@@ -1,0 +1,5 @@
+# Add here all the files you don't want to copy to the docker image
+
+*.env
+*Docker*
+*docker*

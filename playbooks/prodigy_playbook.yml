@@ -1,0 +1,10 @@
+---
+- name: run prodigy playbooks
+  hosts: 127.0.0.1
+  gather_facts: no
+
+- import_playbook: roles/prodigy/setup_nginx.yml
+
+- import_playbook: roles/prodigy/setup_docker.yml
+
+- import_playbook: roles/prodigy/setup_backup.yml

@@ -1,0 +1,19 @@
+version: '3' 
+
+services:   
+  prodigy: 
+    build: 
+      context: .
+      args:
+        - PRODIGY_KEY
+    restart: on-failure:1
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - prodigy_db:/app/.prodigy
+      - ./data:/app/data
+
+volumes: 
+  prodigy_db: 
