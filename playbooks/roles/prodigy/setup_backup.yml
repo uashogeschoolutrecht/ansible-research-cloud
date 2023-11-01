@@ -22,7 +22,7 @@
 
     - name: Generate rclone config
       template:
-        src: ../templates/prodigy/rclone.conf.j2
+        src: ../../../templates/prodigy/rclone.conf.j2
         dest: "/root/.config/rclone/rclone.conf"
         mode: 0600
       vars:
