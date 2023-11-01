@@ -25,7 +25,7 @@
 
     - name: Copy nginx config file
       copy:
-        src: /files/prodigy/nginx/nginx.conf
+        src: ../../../files/prodigy/nginx/nginx.conf
         dest: /etc/nginx/app-location-conf.d
 
     - name: Test Nginx configuration

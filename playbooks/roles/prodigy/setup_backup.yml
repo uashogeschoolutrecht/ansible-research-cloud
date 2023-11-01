@@ -31,7 +31,7 @@
 
     - name: Ensure backup script is present
       copy:
-        src: /files/prodigy/backup.sh
+        src: ../../../files/prodigy/backup.sh
         dest: /usr/local/bin/backup.sh
         mode: '0700'
 

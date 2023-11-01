@@ -31,12 +31,12 @@
         dest: "{{ project_path }}/{{ item.dest }}"
         mode: "{{ item.mode | default('0644') }}"
       loop:
-        - { src: '/files/prodigy/docker/Dockerfile', dest: 'Dockerfile' }
-        - { src: '/files/prodigy/docker/docker-compose.yml', dest: 'docker-compose.yml' }
-        - { src: '/files/prodigy/docker/.dockerignore', dest: '.dockerignore' }
-        - { src: '/files/prodigy/requirements.txt', dest: 'requirements.txt' }
-        - { src: '/files/prodigy/run.sh', dest: 'run.sh' }
-        - { src: '/files/prodigy/.env', dest: '.env' }
+        - { src: '../../../files/prodigy/docker/Dockerfile', dest: 'Dockerfile' }
+        - { src: '../../../files/prodigy/docker/docker-compose.yml', dest: 'docker-compose.yml' }
+        - { src: '../../../files/prodigy/docker/.dockerignore', dest: '.dockerignore' }
+        - { src: '../../../files/prodigy/requirements.txt', dest: 'requirements.txt' }
+        - { src: '../../../files/prodigy/run.sh', dest: 'run.sh' }
+        - { src: '../../../files/prodigy/.env', dest: '.env' }
 
     - name: Build Docker image using secret
       shell: |
