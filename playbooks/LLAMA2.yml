@@ -176,33 +176,36 @@
       shell: ls /home
       register: users_output
 
-    - name: Clone and unpack repo for each user
+    - name: Clone and unpack repo in shared directory
       git:
         repo: 'https://github.com/uashogeschoolutrecht/LLAMA2.git'
-        dest: "/home/{{ item }}/LLAMA2"
+        dest: "/opt/shared/LLAMA2"
         clone: yes
         update: yes
-      loop: "{{ users_output.stdout_lines }}"
       become: yes
-      become_user: "{{ item }}"
 
     - name: Ensure python3-venv is installed
       apt:
         name: python3-venv
         state: present
 
-    - name: Create a Python virtual environment for each user
+    - name: Create a Python virtual environment in shared directory
       command: 
-        cmd: "python3 -m venv /home/{{ item }}/LLAMA2/venv"
-        creates: "/home/{{ item }}/LLAMA2/venv"
-      loop: "{{ users_output.stdout_lines }}"
+        cmd: "python3 -m venv /opt/shared/LLAMA2/venv"
+        creates: "/opt/shared/LLAMA2/venv"
       become: yes
-      become_user: "{{ item }}"
 
-    - name: Install requirements.txt in the Python virtual environment for each user
+    - name: Install requirements.txt in the shared Python virtual environment
       pip:
-        requirements: "/home/{{ item }}/LLAMA2/requirements.txt"
-        virtualenv: "/home/{{ item }}/LLAMA2/venv"
+        requirements: "/opt/shared/LLAMA2/requirements.txt"
+        virtualenv: "/opt/shared/LLAMA2/venv"
+      become: yes
+
+    - name: Create symlinks to shared LLAMA2 directory for each user
+      file:
+        src: "/opt/shared/LLAMA2"
+        dest: "/home/{{ item }}/LLAMA2"
+        state: link
       loop: "{{ users_output.stdout_lines }}"
       become: yes
       become_user: "{{ item }}"
