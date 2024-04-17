@@ -20,10 +20,11 @@
     repo: "ppa:c2d4u.team/c2d4u4.0+"
     state: present
 
-- name: add poppler repo
-  apt_repository:
-    repo: "ppa:cran/poppler"
-    state: present
+# Commented out, because of giving error with initialization of VM
+#- name: add poppler repo
+#  apt_repository:
+#    repo: "ppa:cran/poppler"
+#    state: present
 
 - name: add different repository for libgit2
   apt_repository:
