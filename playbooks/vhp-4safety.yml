@@ -7,6 +7,7 @@
   vars:
     project_name: vhp4-safety
     project_dir: "/opt/{{ project_name }}"
+    repo_url: "https://github.com/uashogeschoolutrecht/vhp4-safety.git"
 
   tasks:
     - name: Install required packages for Python 3.10 and Git
