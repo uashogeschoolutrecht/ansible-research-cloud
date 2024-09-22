@@ -28,13 +28,14 @@
       set_fact:
         users: "{{ users_output.stdout_lines }}"
 
-    - name: Ensure the project directory exists in a shared location
+    - name: Ensure the project directory exists in a shared location with permissions 577
       file:
         path: "{{ project_dir }}"
         state: directory
-        mode: '0755'
-        owner: root
-        group: root
+        mode: '0577' 
+        owner: ubuntu
+        group: ubuntu
+        recurse: yes
 
     - name: Clone the Git repository into the shared project directory
       git:
