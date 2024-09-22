@@ -4,13 +4,63 @@
   vars_files:
     - ./group_vars/vhp4-safety
 
-  tasks:
-    - name: I am confused
-      command: 'whoami'
-      register: myidentity
+  vars:
+    project_name: vhp4-safety
+    project_dir: "/opt/{{ project_name }}"
 
-    - name: my secret identity
-      debug:
-        msg: '{{ myidentity.stdout }}'
-   
-    
+  tasks:
+    - name: Install required packages for Python 3.10 and Git
+      apt:
+        name:
+          - git
+          - python3.10
+          - python3.10-venv
+          - python3.10-dev
+        state: present
+        update_cache: yes
+
+    - name: Get list of users from a command (e.g., all users with home directories)
+      shell: "awk -F: '/\/home/ {print $1}' /etc/passwd"
+      register: users_output
+
+    - name: Set fact for user list
+      set_fact:
+        users: "{{ users_output.stdout_lines }}"
+
+    - name: Ensure the project directory exists in a shared location
+      file:
+        path: "{{ project_dir }}"
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Clone the Git repository into the shared project directory
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ project_dir }}"
+        version: main
+        force: yes
+        accept_hostkey: yes
+      become: yes
+
+    - name: Create a Python 3.10 virtual environment in the shared project directory
+      command: python3.10 -m venv "{{ project_dir }}/venv"
+      args:
+        creates: "{{ project_dir }}/venv"
+      become: yes
+
+    - name: Install dependencies from requirements.txt in the virtual environment
+      pip:
+        requirements: "{{ project_dir }}/requirements.txt"
+        virtualenv: "{{ project_dir }}/venv"
+        virtualenv_python: python3.10
+      become: yes
+
+    - name: Create a symbolic link to the project directory in each user's home directory
+      file:
+        src: "{{ project_dir }}"
+        dest: "/home/{{ item }}/{{ project_name }}"
+        state: link
+      loop: "{{ users }}"
+      become: yes
