@@ -20,7 +20,7 @@
         update_cache: yes
 
     - name: Get list of users from a command (e.g., all users with home directories)
-      shell: "awk -F: '/\/home/ {print $1}' /etc/passwd"
+      shell: "awk -F: '/home/ {print $1}' /etc/passwd"
       register: users_output
 
     - name: Set fact for user list
