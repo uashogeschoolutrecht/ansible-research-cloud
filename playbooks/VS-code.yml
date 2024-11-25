@@ -10,8 +10,7 @@
     - ./group_vars/vscode
 
   vars:
-    # error when installing latest (node v18) on ubuntu 18, therefore node version 16 is installed
-    NODEJS_VERSION: "16"    
+    NODEJS_VERSION: "20"    
 
   tasks:
     # Start Jupyterhub install
