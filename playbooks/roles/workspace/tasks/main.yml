@@ -7,7 +7,7 @@
 
 - name: add CRAN repository
   apt_repository:
-    repo: "deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/"
+    repo: "deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/"
     state: present
 
 - name: add RRutter repository

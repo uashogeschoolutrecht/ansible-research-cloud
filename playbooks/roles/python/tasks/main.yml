@@ -23,6 +23,10 @@
       --channel conda-forge \
       python={{ python_version }}"
     creates: /opt/Python/{{ python_env_name }}
+
+- name: upgrade pip in the environment
+  become: true
+  shell: "/opt/Python/{{ python_env_name }}/bin/pip install --upgrade pip"
     
 - name: install common python packages
   become: true
