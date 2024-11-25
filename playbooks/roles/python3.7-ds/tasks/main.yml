@@ -6,28 +6,28 @@
 - name: install data science packages
   pip:
     name:
-      - altair
-      - cython
-      - dask
-      - gensim
-      - keras
-      - matplotlib
-      - nltk
-      - numpy
-      - pandas
-      - pillow
-      - pyarrow
+      # - altair
+      # - cython
+      # - dask
+      # - gensim
+      # - keras
+      # - matplotlib
+      # - nltk
+      # - numpy
+      # - pandas
+      # - pillow
+      # - pyarrow
       - requests
-      - scipy
-      - scikit-image
-      - scikit-learn
-      - seaborn
-      - spacy
-      - sqlalchemy
-      - statsmodels
-      - tensorflow
-      - xgboost
-      - s3fs
+      # - scipy
+      # - scikit-image
+      # - scikit-learn
+      # - seaborn
+      # - spacy
+      # - sqlalchemy
+      # - statsmodels
+      # - tensorflow
+      # - xgboost
+      # - s3fs
     executable: /opt/Python/{{ python_env_name }}/bin/pip
 
 - name: register jupyter kernel
