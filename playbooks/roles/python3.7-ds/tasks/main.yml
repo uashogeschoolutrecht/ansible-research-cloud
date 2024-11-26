@@ -3,31 +3,65 @@
   include_role:
     name: python
 
-- name: install data science packages
+- name: run base role
+  include_role:
+    name: python
+
+# Group 1: Core libraries
+- name: Install core scientific libraries
   pip:
     name:
-      # - altair
-      # - cython
-      # - dask
-      # - gensim
-      # - keras
-      # - matplotlib
-      # - nltk
-      # - numpy
-      # - pandas
-      # - pillow
-      # - pyarrow
+      - numpy
+      - pandas
+      - scipy
+    executable: /opt/Python/{{ python_env_name }}/bin/pip
+
+# Group 2: Visualization libraries
+- name: Install visualization libraries
+  pip:
+    name:
+      - matplotlib
+      - seaborn
+    executable: /opt/Python/{{ python_env_name }}/bin/pip
+
+# Group 3: Machine learning libraries gives errors, so temporarily install one for one
+- name: Install machine learning libraries (scikit-learn)
+  pip:
+    name:
+      - scikit-learn
+    executable: /opt/Python/{{ python_env_name }}/bin/pip
+
+- name: Install machine learning libraries (tensorflow)
+  pip:
+    name:
+      - tensorflow
+    executable: /opt/Python/{{ python_env_name }}/bin/pip
+
+
+- name: Install machine learning libraries (xgboost)
+  pip:
+    name:
+      - xgboost
+    executable: /opt/Python/{{ python_env_name }}/bin/pip
+
+# Group 4: NLP libraries
+- name: Install NLP libraries
+  pip:
+    name:
+      - spacy
+      - gensim
+      - nltk
+    executable: /opt/Python/{{ python_env_name }}/bin/pip
+
+# Group 5: Miscellaneous libraries
+- name: Install miscellaneous libraries
+  pip:
+    name:
       - requests
-      # - scipy
-      # - scikit-image
-      # - scikit-learn
-      # - seaborn
-      # - spacy
-      # - sqlalchemy
-      # - statsmodels
-      # - tensorflow
-      # - xgboost
-      # - s3fs
+      - sqlalchemy
+      - statsmodels
+      - pyarrow
+      - s3fs
     executable: /opt/Python/{{ python_env_name }}/bin/pip
 
 - name: register jupyter kernel
