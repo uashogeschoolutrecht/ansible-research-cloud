@@ -26,6 +26,11 @@
           - curl
         state: present
 
+    - name: Remove conflicting libnode-dev package
+      apt:
+        name: libnode-dev
+        state: absent
+
     # Node install (needs to be moved to role)
     - name: Install the gpg key for nodejs LTS
       apt_key:
