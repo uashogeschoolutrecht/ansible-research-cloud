@@ -46,6 +46,12 @@
         line: "%jupyterhub-users ALL = (ALL) NOPASSWD: ALL\nDefaults exempt_group = jupyterhub-users"
         mode: '0644'
 
+    # Need to downgrade notebook to 6.x for compatibility with nbgrader
+    - name: Downgrade notebook to 6.x
+      shell: source /opt/tljh/user/bin/activate && conda install --yes --quiet --channel conda-forge notebook=6.5
+      args:
+        executable: /bin/bash
+
     - name: create exchange directory for nbgrader
       file:
         path: /srv/nbgrader/exchange
